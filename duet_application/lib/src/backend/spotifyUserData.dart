@@ -53,9 +53,9 @@ class SpotifyUserData {
   String? email;
   String? accessToken;
   String? refreshToken;
-  List<dynamic>? favoriteArtists; // IDK if we should limit these data structures
-  List<dynamic>? favoriteTracks;
-  List<String>? favoriteGenres;
+  Set<dynamic>? favoriteArtists; // IDK if we should limit these data structures
+  Set<dynamic>? favoriteTracks;
+  Set<String>? favoriteGenres;
 
  SpotifyUserData({
     required this.uuid,
@@ -63,10 +63,12 @@ class SpotifyUserData {
     this.refreshToken,
     this.username,
     this.email,
-    this.favoriteArtists,
-    this.favoriteTracks,
-    this.favoriteGenres,
-  });
+    Set<dynamic>? favoriteArtists,
+    Set<dynamic>? favoriteTracks,
+    Set<String>? favoriteGenres,
+  })  : favoriteArtists = favoriteArtists ?? {},
+        favoriteTracks = favoriteTracks ?? {},
+        favoriteGenres = favoriteGenres ?? {};
 
   // Create and store a new Spotify profile in Firestore.
   static Future<SpotifyUserData> createSpotifyProfile(String uuid) async {
@@ -251,7 +253,7 @@ class SpotifyUserData {
   }
 
   // Fetch top artists
-  Future<List<dynamic>> fetchArtists({int limit = 20}) async {
+  Future<Set<dynamic>> fetchArtists({int limit = 20}) async {
     final response = await _spotifyRequest(
       '$_spotifyApiUrl/me/top/artists?limit=$limit',
     );
@@ -260,7 +262,7 @@ class SpotifyUserData {
   }
 
   // Fetch user's library (saved tracks)
-  Future<List<dynamic>> fetchLibrary({int limit = 20}) async {
+  Future<Set<dynamic>> fetchLibrary({int limit = 20}) async {
     final response = await _spotifyRequest(
       '$_spotifyApiUrl/me/tracks?limit=$limit',
     );
@@ -284,13 +286,13 @@ class SpotifyUserData {
   }
 
   // Fetch genre based on top artists
-  Future<List<String>> fetchGenre() async {
+  Future<Set<String>> fetchGenre() async {
     final artists = await fetchArtists();
     final genres = <String>{};  
     for (final artist in artists) {
       genres.addAll((artist['genres'] as List).cast<String>());
     }
-    return genres.toList();
+    return genres.toSet();
   }
 
   // Helper method for Spotify API requests
@@ -339,10 +341,10 @@ class SpotifyUserData {
       accessToken: data['accessToken'] ?? '',
       refreshToken: data['refreshToken'] ?? '',
       favoriteArtists: data['favoriteArtists'] != null
-          ? List<dynamic>.from(data['favoriteArtists'])
+          ? Set<dynamic>.from(data['favoriteArtists'])
           : null,
       favoriteTracks: data['favoriteTracks'] != null
-          ? List<dynamic>.from(data['favoriteTracks'])
+          ? Set<dynamic>.from(data['favoriteTracks'])
           : null,
     );
   }

@@ -176,7 +176,7 @@ class _SwipeUserParentState extends State<SwipeUserParent> {
               SpotifyUserData(
                 uuid: potentialMatches[currentIndex].uuid,
                 email: potentialMatches[currentIndex].email,
-                favoriteGenres: [],
+                favoriteGenres: {},
               ),
           swipeAction: handleSwipe,
         );
