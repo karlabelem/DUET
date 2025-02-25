@@ -35,7 +35,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     String userUuid = widget.userUuid;
 
     SpotifyUserData? userData = await SpotifyUserData.get(userUuid);
-    final genres = userData.getFavoriteGenres(); // Get top 5 genres
+    final genres = userData?.getFavoriteGenres() ?? [];
     print(genres);
     return genres.map((genre) => genre['name'] as String).toList();
   }

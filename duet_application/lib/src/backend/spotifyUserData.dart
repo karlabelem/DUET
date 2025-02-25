@@ -86,7 +86,7 @@ class SpotifyUserData {
   }
 
   // Get user data from Firestore
-  static Future<SpotifyUserData> get(String uuid) async {
+  static Future<SpotifyUserData?> get(String uuid) async {
     final doc = await firestoreInstance!.instance
         .collection('spotify_users')
         .doc(uuid)
@@ -358,8 +358,7 @@ class SpotifyUserData {
   List<Map<String, dynamic>> getFavoriteGenres() {
     // Fetch the favorite genres from Firestore or any other source
     // Here, we assume that the genres are stored in the 'favoriteGenres' field
-    //return favoriteGenres!.map((genre) => {'name': genre}).toList();
-    return favoriteGenres?.map((genre) => {'name': genre}).toList() ?? [];
+    return favoriteGenres!.map((genre) => {'name': genre}).toList();
   }
 }
 

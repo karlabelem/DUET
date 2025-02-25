@@ -101,6 +101,19 @@ class UserProfileData {
     }
   }
 
+  // Method to get Spotify User Data through Firebase
+  // For algorihtm
+  Future<SpotifyUserData?> getSpotifyUserData() async {
+    final spotifyRef = firestoreInstance!.instance
+        .collection('spotify_users')
+        .doc(uuid); // fetch Spotify data based on the user UUID
+    final spotifySnapshot = await spotifyRef.get();
+    if (spotifySnapshot.exists) {
+      return SpotifyUserData.fromMap(spotifySnapshot.data()!);
+    }
+    return null;
+  }
+
   // Method for getting UserProfile Snapshot shortcut
   // For Algorithm
   static Future<UserProfileData?> getUserProfile(String userId) async {
