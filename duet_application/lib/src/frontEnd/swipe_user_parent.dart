@@ -25,10 +25,8 @@ class _SwipeUserParentState extends State<SwipeUserParent> {
   @override
   void initState() {
     super.initState();
-    // print('init Name: ${widget.currentUser.name}');
-    // print('init Email: ${widget.currentUser.email}');
-    _loadDummyUsers();
-    // _loadPotentialMatches();
+    // _loadDummyUsers();
+    _loadPotentialMatches();
   }
 
   void _loadDummyUsers() {
@@ -122,8 +120,14 @@ class _SwipeUserParentState extends State<SwipeUserParent> {
       return userData;
     }));
 
+    // Now rerank the unseen users
+    final rerankedUsers = reranking(filteredUsers, widget.currentUser);
+
+    // print('init Name: ${widget.currentUser.name}');
+    // print('init Email: ${widget.currentUser.email}');
+
     setState(() {
-      potentialMatches = filteredUsers;
+      potentialMatches = rerankedUsers;
       isLoading = false;
     });
   }

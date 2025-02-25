@@ -23,8 +23,24 @@ Eventually, updates tests with these. For now,
 
  */
 
-// A matching algorithm that, given a list of UserProfileData, (1) removes users in a different city (2) ranks them by min age distance 
+List<UserProfileData> filterCity(List<UserProfileData> users, UserProfileData currentUser) {
+  return users.where((user) => user.location == currentUser.location).toList();
+}
 
+List<UserProfileData> reranking(List<UserProfileData> users, UserProfileData currentUser) {
+  // Order the user in decreasing order of weighted overlap in spotify albums between a user and current user.
+  // The numerator (shared items) is more important, because people who listen to 100 of same songs should be strongly matched, even if 10,000 dissimilar
+  // Let's start with raw intersection size, then normalize by the size of the current user's set
+  users.sort((a, b) {
+    int overlapA = a.spotifyData.favoriteArtists.intersection(currentUser.favoriteArtists).length / currentUser.favoriteArtists.length;
+    int overlapB = b.spotifyData.favoriteArtists.intersection(currentUser.favoriteArtists).length / currentUser.favoriteArtists.length;
+    return overlapB.compareTo(overlapA);
+  });
+  // TODO considerations around a song everyone listens to artificially boosting similarity; user can select what to search for (only Perfect Circle).
+  return users;
+}
+
+// A matching algorithm that, given a list of UserProfileData, (1) removes users in a different city (2) ranks them by min age distance 
 List<UserProfileData> dummyMatching(List<UserProfileData> users, UserProfileData currentUser) {
   // Remove users in a different city
   users.removeWhere((user) => user.location != currentUser.location);
