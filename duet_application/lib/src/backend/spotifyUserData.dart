@@ -39,35 +39,34 @@ enum MusicGenre {
 }
 
 class SpotifyUserData {
-  // TODO !!
-  // These should be unique per user not the same for everyone -> dynamic
-  static const String _clientId = '4dbf19a959ff4c3bb0992c29ce581668';
-  static const String _clientSecret = 'e4fa3a54db064be3bdae30d26bb33b12';
-  static const String _redirectUri = 'https://api.spotify.com';
+  static const String _clientId = '4dbf19a959ff4c3bb0992c29ce581668'; // String.fromEnvironment('SPOTIFY_CLIENT_ID')
+  static const String _clientSecret = 'e4fa3a54db064be3bdae30d26bb33b12'; // String.fromEnvironment('SPOTIFY_CLIENT_SECRET')
+  static const String _redirectUri = 'http://localhost:8080/callback'; // Web redirect URI EDIT THIS TO OUR OWN; old = 'https://api.spotify.com'
   static const String _spotifyAuthUrl = 'https://accounts.spotify.com/authorize';
   static const String _spotifyTokenUrl = 'https://accounts.spotify.com/api/token';
   static const String _spotifyApiUrl = 'https://api.spotify.com/v1';
-
+  
   final String uuid;
   String? username;
-  String email;
+  String? email;
   String? accessToken;
   String? refreshToken;
-  List<dynamic>?
-      favoriteArtists; // IDK if we should limit these data structures
-  List<dynamic>? favoriteTracks;
-  List<dynamic>? favoriteGenres;
+  Set<dynamic>? favoriteArtists; // IDK if we should limit these data structures
+  Set<dynamic>? favoriteTracks;
+  Set<String>? favoriteGenres;
 
   SpotifyUserData({
     required this.uuid,
     this.accessToken,
     this.refreshToken,
     this.username,
-    required this.email,
-    this.favoriteArtists,
-    this.favoriteTracks,
-    this.favoriteGenres,
-  });
+    this.email,
+    Set<dynamic>? favoriteArtists,
+    Set<dynamic>? favoriteTracks,
+    Set<String>? favoriteGenres,
+  })  : favoriteArtists = favoriteArtists ?? {},
+        favoriteTracks = favoriteTracks ?? {},
+        favoriteGenres = favoriteGenres ?? {};
 
   /// Create and store a new Spotify profile in Firestore.
   static Future<SpotifyUserData> createSpotifyProfile(String uuid) async {
@@ -91,26 +90,27 @@ class SpotifyUserData {
         .collection('spotify_users')
         .doc(uuid)
         .get();
+    if (!doc.exists) throw Exception('User not found');
     return SpotifyUserData.fromMap(doc.data()!);
   }
 
-  // TODO!!!
-  // should be authenticating with spotify page to get the data using username and email. !!!
-  // Connect with Spotify OAuth flow
   static Future<SpotifyUserData> connectWithSpotify(String uuid) async {
+    final authUrl = '$_spotifyAuthUrl?response_type=code&client_id=$_clientId'
+        '&redirect_uri=${Uri.encodeComponent(_redirectUri)}'
+        '&scope=${Uri.encodeComponent("user-top-read user-library-read user-read-email user-read-private")}';
+
     final result = await FlutterWebAuth.authenticate(
-      url:
-          '$_spotifyAuthUrl?response_type=code&client_id=$_clientId&redirect_uri=$_redirectUri&scope=user-top-read user-library-read',
+      url: authUrl,
       callbackUrlScheme: _redirectUri.split(':')[0],
     );
 
     final code = Uri.parse(result).queryParameters['code'];
+    if (code == null) throw Exception('Authorization code not found');
+
     final tokenResponse = await http.post(
       Uri.parse(_spotifyTokenUrl),
       headers: {
         'Authorization': 'Basic ${base64Encode(utf8.encode('$_clientId:$_clientSecret'))}',
-        'Authorization':
-            'Basic ${base64Encode(utf8.encode('$_clientId:$_clientSecret'))}',
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: {
@@ -120,13 +120,15 @@ class SpotifyUserData {
       },
     );
 
+    if (tokenResponse.statusCode != 200) {
+      throw Exception('Failed to get token: ${tokenResponse.body}');
+    }
+
     final tokenData = jsonDecode(tokenResponse.body);
     final user = SpotifyUserData(
       uuid: uuid,
       accessToken: tokenData['access_token'],
       refreshToken: tokenData['refresh_token'],
-      username: '', // TODO: username missing
-      email: '', // TODO: email missing
     );
 
     await user.fetchUserData();
@@ -135,36 +137,42 @@ class SpotifyUserData {
 
   // Refresh access token
   Future<void> refreshAccessToken() async {
-    final response = await http.post(
-      Uri.parse(_spotifyTokenUrl),
-      headers: {
-        'Authorization': 'Basic ${base64Encode(utf8.encode('$_clientId:$_clientSecret'))}',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: {
-        'grant_type': 'refresh_token',
-        'refresh_token': refreshToken,
-      },
-    );
+    if (refreshToken == null) throw Exception('No refresh token available');
+    try {
+      final response = await http.post(
+        Uri.parse(_spotifyTokenUrl),
+        headers: {
+          'Authorization':
+              'Basic ${base64Encode(utf8.encode('$_clientId:$_clientSecret'))}',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {
+          'grant_type': 'refresh_token',
+          'refresh_token': refreshToken!,
+        },
+      );
 
-    final data = jsonDecode(response.body);
-    accessToken = data['access_token'];
+      if (response.statusCode != 200) {
+        throw Exception('Failed to refresh token: ${response.body}');
+      }
+
+      final data = jsonDecode(response.body);
+      accessToken = data['access_token'];
+    } catch (e) {
+      throw Exception('Token refresh failed: $e');
+    }
   }
 
-  // TODO
-  // SETTER METHODS MISSING
-
-  // GETTER METHODS
 
   // Fetch user profile data
   Future<void> fetchUserData() async {
     final response = await _spotifyRequest('$_spotifyApiUrl/me');
-    username = response['display_name'] ?? '';
-    email = response['email'] ?? '';
+    username = response['display_name'] ?? 'Unknown';
+    email = response['email'] ?? 'Unknown';
   }
 
   // Fetch top artists
-  Future<List<dynamic>> fetchArtists({int limit = 20}) async {
+  Future<Set<dynamic>> fetchArtists({int limit = 20}) async {
     final response = await _spotifyRequest(
       '$_spotifyApiUrl/me/top/artists?limit=$limit',
     );
@@ -172,8 +180,8 @@ class SpotifyUserData {
     return favoriteArtists!;
   }
 
-  // Fetch user's library (saved tracks)
-  Future<List<dynamic>> fetchLibrary({int limit = 20}) async {
+  // Fetch user's library (saved tracks) // NOT USED YET
+  Future<Set<dynamic>> fetchLibrary({int limit = 20}) async {
     final response = await _spotifyRequest(
       '$_spotifyApiUrl/me/tracks?limit=$limit',
     );
@@ -185,10 +193,11 @@ class SpotifyUserData {
     final response = await _spotifyRequest(
       '$_spotifyApiUrl/tracks?ids=${trackIds.join(',')}',
     );
+    favoriteTracks = response['tracks'];
     return response['tracks'];
   }
 
-  // Fetch saved albums
+  // Fetch saved albums // NOT USED YET
   Future<List<dynamic>> fetchAlbums({int limit = 20}) async {
     final response = await _spotifyRequest(
       '$_spotifyApiUrl/me/albums?limit=$limit',
@@ -197,17 +206,19 @@ class SpotifyUserData {
   }
 
   // Fetch genre based on top artists
-  Future<List<String>> fetchGenre() async {
+  Future<Set<String>> fetchGenre() async {
     final artists = await fetchArtists();
     final genres = <String>{};  
     for (final artist in artists) {
       genres.addAll((artist['genres'] as List).cast<String>());
     }
-    return genres.toList();
+    favoriteGenres = genres.toSet();
+    return genres.toSet();
   }
 
   // Helper method for Spotify API requests
   Future<dynamic> _spotifyRequest(String url) async {
+    if (accessToken == null) throw Exception('No access token available');
     var response = await http.get(
       Uri.parse(url),
       headers: {'Authorization': 'Bearer $accessToken'},
@@ -219,6 +230,10 @@ class SpotifyUserData {
         Uri.parse(url),
         headers: {'Authorization': 'Bearer $accessToken'},
       );
+    }
+
+    if (response.statusCode != 200) {
+      throw Exception('Spotify API request failed: ${response.body}');
     }
 
     return jsonDecode(response.body);
@@ -248,10 +263,10 @@ class SpotifyUserData {
       accessToken: data['accessToken'] ?? '',
       refreshToken: data['refreshToken'] ?? '',
       favoriteArtists: data['favoriteArtists'] != null
-          ? List<dynamic>.from(data['favoriteArtists'])
+          ? Set<dynamic>.from(data['favoriteArtists'])
           : null,
       favoriteTracks: data['favoriteTracks'] != null
-          ? List<dynamic>.from(data['favoriteTracks'])
+          ? Set<dynamic>.from(data['favoriteTracks'])
           : null,
     );
   }
@@ -264,10 +279,10 @@ class SpotifyUserData {
         .set(toMap());
   }
 
-  List<Map<String, dynamic>> getFavoriteGenres() {
+  Set<Map<String, dynamic>> getFavoriteGenres() {
     // Fetch the favorite genres from Firestore or any other source
     // Here, we assume that the genres are stored in the 'favoriteGenres' field
-    return favoriteGenres!.map((genre) => {'name': genre}).toList();
+    return favoriteGenres!.map((genre) => {'name': genre}).toSet();
   }
 }
 
