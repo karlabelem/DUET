@@ -33,7 +33,6 @@ class _MessagingPageState extends State<MessagingPage> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.loggedInUserId);
     return Scaffold(
       body: _isDMListPage ? ConversationList(loggedInUser: widget.loggedInUserId, onConversationSelected: _goToIndividualDMPage,) : IndividualDMPage(loggedInUser: widget.loggedInUserId, otherUser: _otherUser, goBack: _goToDMListPage, otherUserName: _otherUserName,),
     );
