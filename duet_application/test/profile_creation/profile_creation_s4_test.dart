@@ -65,7 +65,7 @@ void main() {
 
   testWidgets('ProfileCreationStep4 navigates to SelectMusicGenres and updates selected genres', (WidgetTester tester) async {
     bool nextStepCalled = false;
-    List<dynamic> selectedGenres = [];
+    Set<dynamic> selectedGenres = {};
 
     // Build the widget
     await tester.pumpWidget(MaterialApp(
