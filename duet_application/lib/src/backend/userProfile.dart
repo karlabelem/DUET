@@ -188,7 +188,6 @@ class UserProfileData {
   // For UI
   Future<int> updateProfile(String newName, String newEmail, String newDob, String newLocation) async {
     try {
-      print(uuid);
       final userRef = firestoreInstance!.instance.collection('users').doc(uuid);
 
       // Update profile details directly in Firestore without a transaction
