@@ -14,7 +14,7 @@ class Messagingbackend {
   late final String cid;
 
   /// Unique name-based conversation ID composed of the names of the two users.
-  late final String nameCid;
+  late String nameCid;
 
   /// Constructor that initializes the Messagingbackend with the given UUIDs and optional conversation and nameCid.
   Messagingbackend({required this.uuid1, required this.uuid2, List<Message>? conversation, String? nameCid})

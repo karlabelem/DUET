@@ -3,7 +3,7 @@ import 'package:duet_application/src/frontEnd/login_screen.dart';
 import 'package:duet_application/src/frontEnd/userProfileScreen.dart';
 import 'package:duet_application/src/frontEnd/profile_creation/profile_creation_parent.dart';
 import 'package:duet_application/src/messaging/messaging_page.dart';
-import 'package:duet_application/src/frontEnd/swipe_user_parent.dart';
+import 'package:duet_application/src/frontEnd/feed/swipe_user_parent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';

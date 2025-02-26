@@ -10,10 +10,10 @@ class ProfileCreationStep4 extends StatefulWidget {
 }
 
 class _ProfileCreationStep4State extends State<ProfileCreationStep4> {
-  List<MusicGenre> _selectedGenres = [];
+  Set<MusicGenre> _selectedGenres = {};
 
-  List<dynamic> getSelectedGenresAsDynamic() {
-    return _selectedGenres.map((genre) => genre.toString().split('.').last).toList();
+  Set<dynamic> getSelectedGenresAsDynamic() {
+    return _selectedGenres.map((genre) => genre.toString().split('.').last).toSet();
   }
 
   void _navigateAndSelectGenres(BuildContext context) async {
@@ -23,7 +23,7 @@ class _ProfileCreationStep4State extends State<ProfileCreationStep4> {
     );
     if (selectedGenres != null) {
       setState(() {
-        _selectedGenres = List<MusicGenre>.from(selectedGenres);
+        _selectedGenres = Set<MusicGenre>.from(selectedGenres);
       });
     }
   }

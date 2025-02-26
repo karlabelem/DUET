@@ -1,5 +1,5 @@
 import 'package:duet_application/src/backend/userProfile.dart';
-import 'package:duet_application/src/frontEnd/swipe_user_parent.dart';
+import 'package:duet_application/src/frontEnd/feed/swipe_user_parent.dart';
 import 'package:flutter/material.dart';
 import 'package:duet_application/src/backend/spotifyUserData.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,7 +17,7 @@ class UserProfileScreen extends StatefulWidget {
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
   late Future<UserProfileData?> _userProfileFuture;
-  late Future<List<String>> _favoriteGenresFuture;
+  late Future<Set<String>> _favoriteGenresFuture;
 
   @override
   void initState() {
@@ -30,14 +30,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     return await UserProfileData.getUserProfile(widget.userUuid);
   }
 
-  Future<List<String>> _loadTopGenres() async {
-    // Replace with the actual UUID of the logged-in user
-    String userUuid = widget.userUuid;
-
-    SpotifyUserData? userData = await SpotifyUserData.get(userUuid);
-    final genres = userData.getFavoriteGenres(); // Get top 5 genres
-    print(genres);
-    return genres.map((genre) => genre['name'] as String).toList();
+  Future<Set<String>> _loadTopGenres() async {
+    SpotifyUserData? userData = await SpotifyUserData.get(widget.userUuid);
+    return userData.favoriteGenres ?? {};
   }
 
   @override
@@ -180,27 +175,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               },
               child: const Text("Log Out"),
             ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5C469C),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SwipeUserParent(
-                      currentUser: userProfile,
-                    ),
-                  ),
-                );
-              },
-              child: const Text(
-                'Start Swiping',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
           ],
         ),
       ),
@@ -295,7 +269,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   Widget _buildTopGenresCard() {
-    return FutureBuilder<List<String>>(
+    return FutureBuilder<Set<String>>(
       future: _favoriteGenresFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {

@@ -72,10 +72,11 @@ class ProfileCreationParentState extends State<ProfileCreationParent> {
   }
 
   Future<void> _createSpotifyUserData(Map<String, dynamic> data) async {
+    final Set<String> favoriteGenres = (data['genres'] as Set<dynamic>).cast<String>();
     final spotifyUserData = SpotifyUserData(
       uuid: uuid,
       email: userRegistrationData.email,
-      favoriteGenres: data['genres'],
+      favoriteGenres: favoriteGenres,
     );
     spotifyUserData.save();
   }
