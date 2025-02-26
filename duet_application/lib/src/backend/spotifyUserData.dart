@@ -268,6 +268,9 @@ class SpotifyUserData {
       favoriteTracks: data['favoriteTracks'] != null
           ? Set<dynamic>.from(data['favoriteTracks'])
           : null,
+      favoriteGenres: data['favoriteGenres'] != null
+          ? Set<String>.from(data['favoriteGenres'])
+          : null,
     );
   }
 
