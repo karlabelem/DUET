@@ -43,11 +43,11 @@ enum MusicGenre {
 class SpotifyUserData {
   static const String _clientId = '4dbf19a959ff4c3bb0992c29ce581668'; // String.fromEnvironment('SPOTIFY_CLIENT_ID')
   static const String _clientSecret = 'e4fa3a54db064be3bdae30d26bb33b12'; // String.fromEnvironment('SPOTIFY_CLIENT_SECRET')
-  static const String _redirectUri = 'http://localhost:8080/callback'; // Web redirect URI EDIT THIS TO OUR OWN
+  static const String _redirectUri = 'http://localhost:8080/callback'; // Web redirect URI EDIT THIS TO OUR OWN; old = 'https://api.spotify.com'
   static const String _spotifyAuthUrl = 'https://accounts.spotify.com/authorize';
   static const String _spotifyTokenUrl = 'https://accounts.spotify.com/api/token';
   static const String _spotifyApiUrl = 'https://api.spotify.com/v1';
-
+  
   final String uuid;
   String? username;
   String? email;
@@ -93,67 +93,46 @@ class SpotifyUserData {
         .collection('spotify_users')
         .doc(uuid)
         .get();
-    if (!doc.exists) throw Exception('User not found in Firestore');
+    if (!doc.exists) throw Exception('User not found');
     return SpotifyUserData.fromMap(doc.data()!);
   }
 
-  // // Connect with Spotify OAuth
-  // static Future<SpotifyUserData> connectWithSpotify(String uuid) async {
-  //   final authUrl = '$_spotifyAuthUrl?response_type=code&client_id=$_clientId'
-  //       '&redirect_uri=${Uri.encodeComponent(_redirectUri)}'
-  //       '&scope=${Uri.encodeComponent("user-top-read user-library-read user-read-email user-read-private")}';
-
-  //   final result = await FlutterWebAuth.authenticate(
-  //     url: authUrl,
-  //     callbackUrlScheme: "yourapp",
-  //   );
-
-  //   final code = Uri.parse(result).queryParameters['code'];
-  //   if (code == null) throw Exception('Authorization code not found');
-
-  //   final tokenResponse = await http.post(
-  //     Uri.parse(_spotifyTokenUrl),
-  //     headers: {
-  //       'Authorization': 'Basic ${base64Encode(utf8.encode('$_clientId:$_clientSecret'))}',
-  //       'Content-Type': 'application/x-www-form-urlencoded',
-  //     },
-  //     body: {
-  //       'grant_type': 'authorization_code',
-  //       'code': code,
-  //       'redirect_uri': _redirectUri,
-  //     },
-  //   );
-
-  //   if (tokenResponse.statusCode != 200) {
-  //     throw Exception('Failed to get token: ${tokenResponse.body}');
-  //   }
-
-  //   final tokenData = jsonDecode(tokenResponse.body);
-  //   final user = SpotifyUserData(
-  //     uuid: uuid,
-  //     accessToken: tokenData['access_token'],
-  //     refreshToken: tokenData['refresh_token'],
-  //   );
-
-  //   await user.fetchUserData();
-  //   return user;
-  // }
-  
-  // Connect with Spotify OAuth flow (web-only)
   static Future<SpotifyUserData> connectWithSpotify(String uuid) async {
-    try {
-      // Build the authorization URL
-      final authUrl =
-          '$_spotifyAuthUrl?response_type=code&client_id=$_clientId'
-          '&redirect_uri=${Uri.encodeComponent(_redirectUri)}'
-          '&scope=${Uri.encodeComponent("user-top-read user-library-read user-read-email user-read-private")}';
+    final authUrl = '$_spotifyAuthUrl?response_type=code&client_id=$_clientId'
+        '&redirect_uri=${Uri.encodeComponent(_redirectUri)}'
+        '&scope=${Uri.encodeComponent("user-top-read user-library-read user-read-email user-read-private")}';
 
-      // Redirect the browser to Spotify's auth page
-      html.window.location.href = authUrl;
+    final result = await FlutterWebAuth.authenticate(
+      url: authUrl,
+      callbackUrlScheme: _redirectUri.split(':')[0],
+    );
 
-      // Wait for the callback and get the authorization code
-      final code = await _getAuthorizationCode();
-      if (code == null) throw Exception('Authorization code not found');
+    final code = Uri.parse(result).queryParameters['code'];
+    if (code == null) throw Exception('Authorization code not found');
+
+    final tokenResponse = await http.post(
+      Uri.parse(_spotifyTokenUrl),
+      headers: {
+        'Authorization': 'Basic ${base64Encode(utf8.encode('$_clientId:$_clientSecret'))}',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: {
+        'grant_type': 'authorization_code',
+        'code': code,
+        'redirect_uri': _redirectUri,
+      },
+    );
+
+    if (tokenResponse.statusCode != 200) {
+      throw Exception('Failed to get token: ${tokenResponse.body}');
+    }
+
+    final tokenData = jsonDecode(tokenResponse.body);
+    final user = SpotifyUserData(
+      uuid: uuid,
+      accessToken: tokenData['access_token'],
+      refreshToken: tokenData['refresh_token'],
+    );
 
       // Exchange code for tokens
       final tokenResponse = await http.post(
@@ -188,35 +167,6 @@ class SpotifyUserData {
     }
   }
 
-  // Handle the authorization code callback
-  static Future<String?> _getAuthorizationCode() async {
-    final completer = Completer<String?>();
-
-    // Check if we're already on the callback URL
-    final currentUrl = html.window.location.href;
-    final uri = Uri.parse(currentUrl);
-    if (uri.queryParameters.containsKey('code')) {
-      completer.complete(uri.queryParameters['code']);
-    } else if (uri.queryParameters.containsKey('error')) {
-      completer.completeError(Exception('OAuth error: ${uri.queryParameters['error']}'));
-    } else {
-      // Listen for URL changes (e.g., after redirect)
-      html.window.onPopState.listen((event) {
-        final newUrl = html.window.location.href;
-        final newUri = Uri.parse(newUrl);
-        if (newUri.queryParameters.containsKey('code')) {
-          completer.complete(newUri.queryParameters['code']);
-        } else if (newUri.queryParameters.containsKey('error')) {
-          completer.completeError(Exception('OAuth error: ${newUri.queryParameters['error']}'));
-        }
-      });
-    }
-
-    return completer.future.timeout(Duration(minutes: 5), onTimeout: () {
-      throw Exception('Authorization timed out');
-    });
-  }
-
   // Refresh access token
   Future<void> refreshAccessToken() async {
     if (refreshToken == null) throw Exception('No refresh token available');
@@ -245,6 +195,7 @@ class SpotifyUserData {
     }
   }
 
+
   // Fetch user profile data
   Future<void> fetchUserData() async {
     final response = await _spotifyRequest('$_spotifyApiUrl/me');
@@ -261,7 +212,8 @@ class SpotifyUserData {
     return favoriteArtists!;
   }
 
-  // Fetch user's library (saved tracks)
+
+  // Fetch user's library (saved tracks) // NOT USED YET
   Future<Set<dynamic>> fetchLibrary({int limit = 20}) async {
     final response = await _spotifyRequest(
       '$_spotifyApiUrl/me/tracks?limit=$limit',
@@ -274,10 +226,11 @@ class SpotifyUserData {
     final response = await _spotifyRequest(
       '$_spotifyApiUrl/tracks?ids=${trackIds.join(',')}',
     );
+    favoriteTracks = response['tracks'];
     return response['tracks'];
   }
 
-  // Fetch saved albums
+  // Fetch saved albums // NOT USED YET
   Future<List<dynamic>> fetchAlbums({int limit = 20}) async {
     final response = await _spotifyRequest(
       '$_spotifyApiUrl/me/albums?limit=$limit',
@@ -292,6 +245,7 @@ class SpotifyUserData {
     for (final artist in artists) {
       genres.addAll((artist['genres'] as List).cast<String>());
     }
+    favoriteGenres = genres.toSet();
     return genres.toSet();
   }
 
@@ -357,10 +311,10 @@ class SpotifyUserData {
         .set(toMap());
   }
 
-  List<Map<String, dynamic>> getFavoriteGenres() {
+  Set<Map<String, dynamic>> getFavoriteGenres() {
     // Fetch the favorite genres from Firestore or any other source
     // Here, we assume that the genres are stored in the 'favoriteGenres' field
-    return favoriteGenres!.map((genre) => {'name': genre}).toList();
+    return favoriteGenres!.map((genre) => {'name': genre}).toSet();
   }
 }
 

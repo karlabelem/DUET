@@ -101,7 +101,7 @@ class UserProfileData {
     }
   }
 
-  // Method to get Spotify User Data through Firebase
+  // Method to get Spotify User Data
   // For algorihtm
   Future<SpotifyUserData?> getSpotifyUserData() async {
     final spotifyRef = firestoreInstance!.instance

@@ -135,8 +135,9 @@ class _SwipeUserParentState extends State<SwipeUserParent> {
   void handleSwipe(bool isLiked) async {
     if (currentIndex < potentialMatches.length) {
       // Get Spotify data for the current profile
-      await potentialMatches[currentIndex].updateSpotifyData();
-      final spotifyData = potentialMatches[currentIndex].spotifyData;
+      potentialMatches[currentIndex].linkSpotifyProfile();
+      // final spotifyData =
+      //     await potentialMatches[currentIndex].getSpotifyUserData();
 
       setState(() {
         currentIndex++;
