@@ -23,8 +23,36 @@ Eventually, updates tests with these. For now,
 
  */
 
-// A matching algorithm that, given a list of UserProfileData, (1) removes users in a different city (2) ranks them by min age distance 
+List<UserProfileData> filterCity(List<UserProfileData> users, UserProfileData currentUser) {
+  return users.where((user) => user.location == currentUser.location).toList();
+}
 
+List<UserProfileData> reranking(List<UserProfileData> users, UserProfileData currentUser) {
+  // Order the user in decreasing order of weighted overlap in spotify albums between a user and current user.
+  // The numerator (shared items) is more important, because people who listen to 100 of same songs should be strongly matched, even if 10,000 dissimilar
+  // Let's start with raw intersection size, then normalize by the size of the current user's set
+  users.sort((a, b) {
+  // Handle null values safely
+  final Set<dynamic> aArtists = a.spotifyData?.favoriteArtists ?? {};
+  final Set<dynamic> bArtists = b.spotifyData?.favoriteArtists ?? {};
+  final Set<dynamic> currentUserArtists = currentUser.spotifyData?.favoriteArtists ?? {};
+
+  // Avoid division by zero: If currentUserArtists is empty, return users as-is
+  int currentUserArtistCount = currentUserArtists.length;
+  if (currentUserArtistCount == 0) return 0;
+
+  double overlapA = aArtists.intersection(currentUserArtists).length / currentUserArtistCount;
+  double overlapB = bArtists.intersection(currentUserArtists).length / currentUserArtistCount;
+
+  return overlapB.compareTo(overlapA);
+});
+
+// TODO: considerations around a song everyone listens to artificially boosting similarity;
+// user can select what to search for (only Perfect Circle).
+return users;
+}
+
+// A matching algorithm that, given a list of UserProfileData, (1) removes users in a different city (2) ranks them by min age distance 
 List<UserProfileData> dummyMatching(List<UserProfileData> users, UserProfileData currentUser) {
   // Remove users in a different city
   users.removeWhere((user) => user.location != currentUser.location);

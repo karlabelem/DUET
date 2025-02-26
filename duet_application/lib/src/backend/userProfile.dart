@@ -24,6 +24,7 @@ var _uuidGen = Uuid();
 class UserProfileData {
   final String _uuid; // Private unique user ID
   String name, email, dob, location, bio, password;
+  SpotifyUserData? spotifyData;
   String? imageUrl;
   List<String> likedUsers; // Stores liked users with user UUIDs
   List<String> dislikedUsers; // Stores liked users with user UUIDs
@@ -35,6 +36,7 @@ class UserProfileData {
     required this.dob,
     required this.location,
     required this.password,
+    this.spotifyData,
     this.imageUrl,
     this.bio = "",
     List<String>? likedUsers,
@@ -85,6 +87,20 @@ class UserProfileData {
         .set(toMap()); // creates users collection
   }
 
+  // Method to link Spotify profile
+  Future<void> linkSpotifyProfile() async {
+    spotifyData = await SpotifyUserData.createSpotifyProfile(uuid);
+  }
+
+  // Fetch or update Spotify data
+  Future<void> updateSpotifyData() async {
+    if (spotifyData != null) {
+      await spotifyData!.updateSpotifyData();
+    } else {
+      await linkSpotifyProfile();
+    }
+  }
+
   // Method to get Spotify User Data
   // For algorihtm
   Future<SpotifyUserData?> getSpotifyUserData() async {
@@ -96,20 +112,6 @@ class UserProfileData {
       return SpotifyUserData.fromMap(spotifySnapshot.data()!);
     }
     return null;
-  }
-
-  // Create Spotify profile if it doesn't exist, or update it if it does
-  // For UI
-  Future<void> useSpotifyProfileData() async {
-    final spotifyData = await getSpotifyUserData();
-
-    if (spotifyData == null) {
-      // Spotify data does not exist, create a new profile
-      await SpotifyUserData.createSpotifyProfile(uuid);
-    } else {
-      // Spotify data exists, update the existing profile
-      await spotifyData.updateSpotifyData();
-    }
   }
 
   // Method for getting UserProfile Snapshot shortcut
