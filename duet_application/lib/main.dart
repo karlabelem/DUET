@@ -1,3 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'src/backend/spotifyUserData.dart';
@@ -12,6 +15,17 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  if (kDebugMode) {
+   try {
+     FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+     await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+   } catch (e) {
+     // ignore: avoid_print
+     print(e);
+   }
+ }
+
   runApp(MyApp());
 }
 
@@ -62,6 +76,7 @@ class _SpotifyAuthWidgetState extends State<SpotifyAuthWidget> {
       setState(() {});
       debugPrint("Got Spotify user: ${_spotifyUserData!.username}");
     } catch (e) {
+      print(e);
       setState(() {
         _errorMessage = e.toString();
       });
