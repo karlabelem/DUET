@@ -402,7 +402,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Edit Profile")),
+      appBar: AppBar(
+          title: const Text("Edit Profile"),
+          backgroundColor: const Color(0xFF5C469C)),
+      backgroundColor: const Color(0xFFE6E6FA),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -411,25 +414,81 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(
-                  labelText: "Name", border: OutlineInputBorder()),
+                labelText: "Name",
+                labelStyle: TextStyle(color: Colors.black),
+                fillColor: Colors.white,
+                filled: true,
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+              ),
+              style: TextStyle(color: Colors.black),
             ),
             const SizedBox(height: 10),
             TextField(
               controller: _emailController,
               decoration: const InputDecoration(
-                  labelText: "Email", border: OutlineInputBorder()),
+                labelText: "Email",
+                labelStyle: TextStyle(color: Colors.black),
+                fillColor: Colors.white,
+                filled: true,
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+              ),
+              style: TextStyle(color: Colors.black),
             ),
             const SizedBox(height: 10),
             TextField(
               controller: _dobController,
               decoration: const InputDecoration(
-                  labelText: "DOB", border: OutlineInputBorder()),
+                labelText: "DOB",
+                labelStyle: TextStyle(color: Colors.black),
+                fillColor: Colors.white,
+                filled: true,
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+              ),
+              style: TextStyle(color: Colors.black),
             ),
             const SizedBox(height: 10),
             TextField(
               controller: _locationController,
               decoration: const InputDecoration(
-                  labelText: "Location", border: OutlineInputBorder()),
+                labelText: "Location",
+                labelStyle: TextStyle(color: Colors.black),
+                fillColor: Colors.white,
+                filled: true,
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+              ),
+              style: TextStyle(color: Colors.black),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
