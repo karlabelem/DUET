@@ -133,9 +133,6 @@ class _MyAppState extends State<MyApp> {
                   }
                 } else {
                   return Scaffold(
-                    appBar: AppBar(
-                      title: Text(AppLocalizations.of(context)!.appTitle),
-                    ),
                     body: IndexedStack(
                       index: appState == AppState.userProfile
                           ? 0

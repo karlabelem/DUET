@@ -2,7 +2,10 @@ import 'package:duet_application/src/backend/dm_list_backend.dart';
 import 'package:flutter/material.dart';
 
 class ConversationList extends StatefulWidget {
-  ConversationList({super.key, required this.loggedInUser, required this.onConversationSelected});
+  ConversationList(
+      {super.key,
+      required this.loggedInUser,
+      required this.onConversationSelected});
 
   final String loggedInUser;
   final Function(String, String) onConversationSelected;
@@ -27,7 +30,8 @@ class _ConversationListState extends State<ConversationList> {
     setState(() {
       loading = true;
     });
-    DmListBackend? convos = await getConversation(widget.loggedInUser) ?? DmListBackend(uuid1: widget.loggedInUser);
+    DmListBackend? convos = await getConversation(widget.loggedInUser) ??
+        DmListBackend(uuid1: widget.loggedInUser);
     await convos.getDocumentsWithUuidSubstring(widget.loggedInUser);
     await convos.saveToFirestore();
     print(convos.conversations);
@@ -57,7 +61,7 @@ class _ConversationListState extends State<ConversationList> {
     }
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF5C469C),
+        backgroundColor: const Color(0xFF5C469C),
         title: Text("Conversations"),
         actions: [
           IconButton(
@@ -66,7 +70,7 @@ class _ConversationListState extends State<ConversationList> {
           ),
         ],
       ),
-      backgroundColor: Color(0xFFD4ADFC), // Background color
+      backgroundColor: const Color(0xFFE6E6FA), // Background color
       body: _buildConversationList(dmlist),
     );
   }
@@ -86,7 +90,8 @@ class _ConversationListState extends State<ConversationList> {
               String otherUser = extractOtherUser(dmlist.conversations[index]);
               return GestureDetector(
                 onTap: () {
-                  widget.onConversationSelected(otherUser, dmlist.names[index][otherUser]!);
+                  widget.onConversationSelected(
+                      otherUser, dmlist.names[index][otherUser]!);
                 },
                 child: Container(
                   margin: EdgeInsets.symmetric(vertical: 5),
