@@ -235,10 +235,10 @@ class UserProfileData {
       });
     });
   }
-}
 
-// Method to get user profile based on email and password
-Future<UserProfileData?> getUserProfileByEmailAndPassword(dynamic email, dynamic password) async {
+  // Method to get user profile based on email and password
+static Future<UserProfileData?> getUserProfileByEmailAndPassword(dynamic email, dynamic password) async {
+  authenticationInstance!.instance.signInWithEmailAndPassword(email: email, password: password);
   final userQuery = await firestoreInstance!.instance
       .collection('users')
       .where('email', isEqualTo: email)
@@ -250,3 +250,6 @@ Future<UserProfileData?> getUserProfileByEmailAndPassword(dynamic email, dynamic
   }
   return null;
 }
+}
+
+

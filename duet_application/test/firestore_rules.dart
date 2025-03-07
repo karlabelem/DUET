@@ -11,7 +11,7 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:duet_application/src/backend/authentication_instance.dart';
 
 void main() {
-  group("Check connections to database with authentication", () {
+  group("Check connections to users collection with authentication", () {
     // set up the mock cloud firestore
     final auth = MockFirebaseAuth();
     final firestore = FakeFirebaseFirestore(
@@ -28,8 +28,8 @@ void main() {
     );
     makeFirestoreInstance(instance: firestore);
     makeAuthenticationInstance(instance: auth);
-    
-    test('Find best matches using Firestore mock', () async {
+
+    test('Saving new profile to database', () async {
     // Create users in Firestore
     UserProfileData user1 = UserProfileData(
       name: 'User 1',
@@ -40,14 +40,29 @@ void main() {
     );
     await user1.saveToFirestore(); // Save user1 to Firestore
 
-    final UserProfileData? login = await getUserProfileByEmailAndPassword('email@yes.com', 'password');
+    final UserProfileData? savedUser = await UserProfileData.getUserProfile(user1.authId);
 
-    expect(login, isNotNull);
-    expect(login!.uuid, user1.uuid);
-    expect(login.name, user1.name);
-    expect(login.email, user1.email);
-    expect(login.dob, user1.dob);
-    expect(login.location, user1.location);
+    expect(savedUser, isNotNull);
+    expect(savedUser!.uuid, user1.uuid);
+    expect(savedUser.name, user1.name);
+    expect(savedUser.email, user1.email);
+    expect(savedUser.dob, user1.dob);
+    expect(savedUser.location, user1.location);
+
+    await auth.signOut();
+    });
+
+    test('Logging in with existing profile', () async {
+      const String email = 'email@yes.com';
+      const String password = 'password';
+      final UserProfileData? login = await UserProfileData.getUserProfileByEmailAndPassword(email, password);
+
+      expect(login, isNotNull);
+      expect(login!.email, email);
+      expect(login.password, password);
+    });
+
+
   });
-  });
-}
+  }
+
