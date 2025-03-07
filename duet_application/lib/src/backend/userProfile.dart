@@ -10,9 +10,11 @@
 */
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
 import 'spotifyUserData.dart';
 import 'firestore_instance.dart';
+import 'authentication_instance.dart';
 
 // Create an instance of the Uuid class
 var _uuidGen = Uuid();
@@ -23,6 +25,7 @@ var _uuidGen = Uuid();
 // Rankings can be dynamically updated via the `rankUser` method.
 class UserProfileData {
   final String _uuid; // Private unique user ID
+  late final String _authId;
   String name, email, dob, location, bio, password;
   SpotifyUserData? spotifyData;
   String? imageUrl;
@@ -44,6 +47,8 @@ class UserProfileData {
   })  : _uuid = uuid ?? _uuidGen.v4(),
         likedUsers = likedUsers ?? [],
         dislikedUsers = dislikedUsers ?? [];
+
+  
 
   // Convert to Firestore format
   Map<String, dynamic> toMap() {
@@ -78,13 +83,22 @@ class UserProfileData {
   }
   // Getter for _uuid (to allow read access)
   String get uuid => _uuid;
+  String get authId => _authId;
 
   // Save user profile data to Firestore
   Future<void> saveToFirestore() async {
-    await firestoreInstance!.instance
+    try{
+      await authenticationInstance!.instance.createUserWithEmailAndPassword(email: email, password: password);
+      await authenticationInstance!.instance.signInWithEmailAndPassword(email: email, password: password);
+      _authId = authenticationInstance!.instance.currentUser!.uid;
+      await firestoreInstance!.instance
         .collection('users')
-        .doc(uuid)
-        .set(toMap()); // creates users collection
+        .doc(authId)
+        .set(toMap()); // creates users collection in Firestore
+    } catch (e) {
+      // ignore: avoid_print
+      print(e);
+    }
   }
 
   // Method to link Spotify profile
