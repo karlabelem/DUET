@@ -3,8 +3,23 @@ import 'dart:convert';
 import 'dart:html' as html; // Use dart:html for redirection on web
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:duet_application/src/backend/firestore_instance.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+
+enum MusicGenre {
+  Pop,
+  Rock,
+  HipHop,
+  Jazz,
+  Classical,
+  Electronic,
+  Country,
+  Reggae,
+  Blues,
+  Metal,
+}
+
 
 class SpotifyUserData {
   final String uuid;
@@ -13,21 +28,21 @@ class SpotifyUserData {
   String accessToken;
   // In the implicit flow no refresh token is provided.
   String refreshToken;
-  List<dynamic>? favoriteArtists;
-  List<dynamic>? favoriteTracks;
-
+  List<dynamic> favoriteArtists;
+  List<dynamic> favoriteTracks;
+  Set<String> favoriteGenres;
 
   SpotifyUserData({
     required this.uuid,
-    this.accessToken,
-    this.refreshToken,
-    this.username,
-    this.email,
-    Set<dynamic>? favoriteArtists,
-    Set<dynamic>? favoriteTracks,
-    Set<String>? favoriteGenres,
-  })  : favoriteArtists = favoriteArtists ?? {},
-        favoriteTracks = favoriteTracks ?? {},
+    this.accessToken = '',
+    this.refreshToken = '',
+    this.username = '',
+    this.email = '',
+    favoriteArtists,
+    favoriteTracks,
+    favoriteGenres,
+  })  : favoriteArtists = favoriteArtists ?? [],
+        favoriteTracks = favoriteTracks ?? [],
         favoriteGenres = favoriteGenres ?? {};
 
   static final String _clientId = dotenv.env['CLIENT_ID']!;
@@ -106,7 +121,7 @@ class SpotifyUserData {
   Future<List<dynamic>> fetchArtists({int limit = 20}) async {
     final response =
         await _spotifyRequest('$_spotifyApiUrl/me/top/artists?limit=$limit');
-    favoriteArtists = response['items'] as List<dynamic>?;
+    favoriteArtists = response['items'] != null ? List<dynamic>.from(response['items']) : [];
     return favoriteArtists ?? [];
   }
 
@@ -114,7 +129,7 @@ class SpotifyUserData {
   Future<List<dynamic>> fetchLibrary({int limit = 20}) async {
     final response =
         await _spotifyRequest('$_spotifyApiUrl/me/tracks?limit=$limit');
-    favoriteTracks = response['items'] as List<dynamic>?;
+    favoriteTracks = response['items'] != null ? List<dynamic>.from(response['items']) : [];
     return favoriteTracks ?? [];
   }
 
@@ -138,6 +153,7 @@ class SpotifyUserData {
         .doc(uuid)
         .set(toMap());
   }
+
   Map<String, dynamic> toMap() => {
         'uuid': uuid,
         'accessToken': accessToken,
@@ -146,6 +162,7 @@ class SpotifyUserData {
         'email': email,
         'favoriteArtists': favoriteArtists,
         'favoriteTracks': favoriteTracks,
+        'favoriteGenres': favoriteGenres?.toList(),
       };
 
   factory SpotifyUserData.fromMap(Map<String, dynamic> data) => SpotifyUserData(
@@ -160,6 +177,18 @@ class SpotifyUserData {
         favoriteTracks: data['favoriteTracks'] != null
             ? List<dynamic>.from(data['favoriteTracks'])
             : null,
+        favoriteGenres: data['favoriteGenres'] != null
+            ? Set<String>.from(data['favoriteGenres'])
+            : null,
       );
+
+  static Future<SpotifyUserData?> fromFirestore(String uuid) async {
+    final doc = await firestoreInstance!.instance
+        .collection('spotify_users')
+        .doc(uuid)
+        .get();
+    if (!doc.exists) return null;
+    return SpotifyUserData.fromMap(doc.data()!);
+  }
 }
 

@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:duet_application/src/app.dart';
 import 'package:duet_application/src/backend/firestore_instance.dart';
+import 'package:duet_application/src/settings/settings_controller.dart';
+import 'package:duet_application/src/settings/settings_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
