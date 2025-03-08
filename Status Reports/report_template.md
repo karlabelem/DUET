@@ -34,7 +34,7 @@
 #### Goals for next week
 * goal 1
 
-### Andrey Riukhin
+### Andrey Risukhin :pig_nose:
 #### Goals for the week
 * goal 1
 #### Progress and issues

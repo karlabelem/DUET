@@ -323,3 +323,303 @@ Provide a concise summary of the project team and project artifacts. Specificall
 * Client meetings on Thursday
 * Two weekly standups - use Discord for urgent issues
 * Ramon as the Scrum Manager (has experience before)
+
+## Software Architecture
+![software architecture](/images/architecture%20design.png "Software Architecture")
+We will be using a client-server architecture. 
+### Assumptions:
+Centralized server is available, not down. It enforces security, access control. 
+#### Client:
+* User profile: page with the logged in user’s profile information and functionalities
+* Feed: page showing other people’s profiles for the logged in user to determine whether to make a connection with the person or not
+* Chats: page with the logged in user’s conversations and messaging functionalities
+#### Server: 
+* Music data: stores each user’s spotify data
+* Users: stores all the users and the required user-specific data
+* Conversations: stores all conversations between any 2 users
+* Algorithm: matching algorithm to determine which profiles math each other the best
+#### Interfaces:
+* User profile - music data: the user profile includes the spotify profile information, from where we fetch the music data
+* User profile - users: users stores all users and their personal information, which is reflected and can be changed on the user profile page
+* Feed - users: the feed activity updates the user’s preferences when it comes to matching with other people
+* Algorithm - feed: the algorithm determines which users match better with the logged in user and shows them on the feed
+* Chats - conversations: conversations stores all the text conversations between users, which is reflected and updated in the chats page
+#### Data:
+* In increasing frequency of updates:
+- Individual data (uuid, location set by user)
+- Music data (uuid, song titles from a playlist shared with Duet via Spotify)
+- Social data (uuid, list of positively rated uuids & date & source (this user or another), list of negatively rated uuids & date & source (this user or another), last log in)
+* The server-client model will be inconsistent until the last possible moment; a user’s client-side feed and server-side data are only updated when the user logs in. We avoid updating inactive profiles in the system, and avoid recommending them.
+### Alternatives
+##### Architecture Design
+Another option would've been a Layering architecture design. The pros of that would be having a clear control flow, and it would be easy to audit. However, it lends itself poorly to cross-component connectivity, and can easily become tightly coupled. 
+With this design, we get a centralized source of truth, which leads to more consistent data since all of it is stored centrally. We also get simpler scalability of the server. However, it can lead to some latency issues, and it has a single point of failure: the server. 
+##### Choice of Components in Client
+Instead of having a single component for the messaging functionality, we could have split it into a conversations list component and an individual conversation component. The optoin we chose prioritizes loose coupling, while the other option prioritizes high cohesion. 
+##### Choice of Components in Server
+Instead of segmenting user and music data & functions in the server, we could have unified these under “queryable information” scope. However, in the interest of modularity (high cohesion, loose coupling) we distinguish these details. An argument in favor of unification is clearer that music and user information will be updated at the same time, so we enforce consistency by including both updates in the same code. 
+
+## Software Design
+### User Interface
+* Profile creation (users are asked questions in each page, and pages are ordered in the following order):
+- Question: First/Last name
+- Question: Provide your email
+- Question: Provide your date of birth
+- Question: Where do you live? (city)
+- Connect your Spotify account
+* Log-in / Sign-up: Users are given the option to either log in with their previously made account or sign up for a new account
+- Sign up
+- Log in
+- Forgot password
+- Forgot password code
+- Reset password
+- Password changed
+* Feed: Shows the user’s match to the current user. Users can choose to reject or message their current match. Users can scroll down to see more information about their match.
+* Navigation bar (at the bottom of the screen):
+- Profile button: User can click on “profile” button to bring them to their own profile
+- Message-inbox button: User can click on “message-inbox” button to see their conversations
+- Feed button: User can click on “feed” button to bring them to their feed
+* Current conversations list: shows the user a list of their active conversations 
+* Conversation with a user: all the messages between two users, let’s the signed in user send and receive messages
+- Textbox: where the user can type and send messages 
+- Text bubble: format in which each individual message is displayed
+### Storing Data
+Firestore will store user profiles, conversations, music preferences, and matchmaking data in structured collections. The data model ensures:  
+* Efficient queries to retrieve relevant data.  
+* Minimal redundant updates to reduce Firestore read/write costs. 
+* Optimized matching operations by storing ranked matches separately.  
+
+### Firestore Collections & Data Structure 
+##### Users/ (User Profiles)
+* Document: {userId} (unique identifier for each user). 
+* Fields:  
+- Basic data: name, location, about me section.  
+- Authentication data: email, lastLoginTimestamp.  
+- Spotify data (sub-collection): playlist, likedGenres, topSongs.  
+* Responsibilities:  
+- Stores user profile information.  
+- Updates only when the user logs in.  
+
+
+##### Conversations/ (Chats & Messages)
+* Document: {conversationId} (unique identifier for each conversation).  
+* Fields:  
+- participants: List of user IDs in the conversation.  
+- messages: Sub-collection storing each message with senderId, timestamp, content.  
+* Responsibilities: 
+- Stores real-time user messages.  
+- Fetches live updates for active conversations.  
+
+
+##### User_Matches/ (Matchmaking Interactions)
+* Document: userId (each document represents a user’s match history).  
+* Fields: 
+- positivelyRatedUsers: List of user IDs.
+- negativelyRatedUsers: List of user IDs. 
+* Responsibilities:
+- Tracks user interactions (likes and dislikes swipes).  
+- Provides historical data to refine the recommendation algorithm.  
+##### Matching_Algorithm / (Stored Match Results)
+* Document: matchId (each document stores a list of matches for a specific user).
+* Fields:  
+- userId: The user for whom matches are generated.  
+- rankedMatches: List of recommended user IDs sorted by compatibility.
+* Responsibilities: 
+- Stores precomputed ranked matches for each user.  
+- Uses location-based filtering before generating matches.  
+- Avoids unnecessary recomputation by updating only when necessary. 
+
+### Data Flow
+User Logs In:
+* Fetches user profile from users/. 
+* Loads recent match recommendations from matching_algorithm/.  
+User Views Feed:
+* Fetches potential matches from matching_algorithm/. 
+* Displays users based on ranking and filters.  
+User Interacts (Likes/Dislikes/Swipe):
+* Updates user_matches/ with the interaction.  
+* Triggers an update to refine future recommendations.  
+User Starts a Chat: 
+* Creates/updates a document in conversations/. 
+* Stores messages in a sub-collection  
+Storage Considerations:
+* Caching: Store recent match results and chat history on the client to minimize Firestore reads.
+* Security: Restrict data access to ensure users can only view and update their own data.  
+Algorithm API: Given a uuid, return a ranked list of best matching k uuids. 
+* Must: Query database for valid profiles (location restriction).
+* Product-responsibilities: Algorithm modules for A/B testing, such as TF/IDF-style matching of music song lists (reward high overlap in high % of each uuid’s song list).
+* Admin-responsibilities: modules to inspect user behavior for irregularities/implicit feedback (e.g. proactively discover if user used to match but now swipes negative). Treat behavior data as user feedback.
+![software design](/images/software%20design.png "Software Design")
+
+## Coding Guidelines
+We will be using Dart as one of the programming languages. The coding style guideline we will follow is the official Dart style guide: https://dart.dev/effective-dart/style 
+We chose this guideline because it’s the standard maintained by the Dart team, ensuring consistency with widely accepted best practices. The documentation covers the essentials such as naming conventions, formatting, and best practices for writing clean code. When we follow these guidelines, it’ll help improve code readability, maintainability, and collaboration among our group.
+To enforce these guidelines, we will:
+* Use automated tools such as ‘dart format’ to ensure consistent code formatting.
+* Enable static analysis with ‘dart analyze’ to detect style violations and potential issues early during development.
+* Conduct regular code reviews where team members will check for adherence to the style guide and provide feedback.
+* Have team members look through the documentation and clear up any questions/concerns that arise during our weekly group meetings
+
+## Process Description
+### Risk Assessment
+
+|Risk|Likelihood|Impact|Evidence / Justification|Mitigation Steps|Detection Plan|Response Plan|
+|Delays in Spotify API Integration|Medium|High|Spotify API has rate limits and authentication requirements that could slow down implementation. Team may face unexpected API changes or insufficient documentation.|Assign a team member to research Spotify API in detail. Create test scripts early to validate API access.|Log API request/response errors, monitor request limits.|If integration issues arise, pivot to caching Spotify data locally or reducing API dependencies.|
+|Server Downtime or Scalability Issues|Low|High|Centralized server availability is assumed. If traffic scales beyond expected, our system might not handle the load effectively.|Use Firebase functions for scalability. Monitor server health with logs and alerts.|Set up uptime monitoring with Firebase performance tools.|Increase server capacity or introduce fallback mechanisms (e.g., rate-limiting requests).|
+|Algorithm Performance and Matching Accuracy|Medium|Medium|The matching algorithm may not return accurate or efficient results, leading to a poor user experience. A/B testing may be inconclusive or require significant data.|Use test datasets to validate algorithm performance before full deployment. Implement logging for matches to assess quality.|Monitor algorithm behavior and user feedback. Track engagement rates in the feed.|Adjust matching criteria based on user data or introduce additional parameters for refinement.|
+|Security and Privacy Concerns|High|High|Storing user data (including music preferences and conversations) requires strict access controls. Any security vulnerability could lead to data leaks.|Use Firebase Authentication and Firestore security rules. Conduct security reviews before deployment.|Automated security scans, penetration testing, and Firebase security rules audit.|If a breach occurs, immediately revoke compromised credentials, notify affected users, and patch vulnerabilities.|
+|Lack of Active Users Affecting Matching & Engagement|Medium|High|If not enough users actively engage with the app, matching may be poor, leading to a negative feedback loop.|Promote early user adoption, ensure an intuitive UI, and consider incentivizing early users.|Track daily active users, match success rate, and user feedback.|Adjust algorithm to suggest more active profiles or introduce alternative social features to encourage engagement.|
+### Project Schedule
+Each milestone is expected to take between 1-1.5 weeks to complete, most of the tasks having at least 2 people actively working on them. 
+* Milestone 1: Profile creation and storage 
+- Make a profile creation page
+- Create a database
+- Set a schema on how to store users and user information
+* Milestone 2: Spotify connection and data
+- Learn spotify APIs
+- Set a schema on how to store user’s wanted spotify data
+* Milestone 3: Conversations Page, Feed, Algorithm, Beta release 1
+- Create a DM/Conversations page on frontend
+- Set schema to store all conversations in the database
+- Create a feed page (needs a schema for users in db and a working algorithm)
+- Finalize an initial algorithm to update the feed 
+* Milestone 4: Login screen, Blocking other users
+- Create a login and sign up screen
+- Make UI interface to block other users
+- Store blocked users in the database
+* Milestone 5: Icebreakers, Top k songs, Reasoning for profiles in feed, Feed filtering, Beta Release 2
+- Add icebreakers to user profiles and implement functionalities
+- Implement top k songs area of user profiles
+- Including why a profile is shown on the feed in the feed itself
+- Add filtering options to the feed
+If there is enough time after milestone 5, stretch features (P2) will be implemented over 1-2 more milestones. 
+### Team Structure
+* Ramon: Scrum master, messaging functionality (front- and back-end)
+* Belem: Front-end, UI/UX design
+* Andrey: Data, Algorithms, probably Spotify API; begs for resources
+* Keegan: Front-end
+* Jacob: Back-end (Firebase)
+* Selim: Back-end (Firebase)
+### Test Plan & Bugs
+Data
+* Assertions about the data stored (no null values for song names retrieved from API and stored).
+Algorithm
+* Unit tests checking distinct cases of the algorithm (preferring a recently active profile as tiebreaker; matching criteria works as expected).
+Interfaces
+* Testing the connections between client and server side
+* Testing transitions and communication between separate front-end pages
+* Testing communication and cohesion between data in the server
+ 
+## Continous Integration / Continuous Deployment
+
+<<<<<<< HEAD
+### A brief justification for why you chose that CI service.
+=======
+### CI Service
+>>>>>>> b330c96a2dd31076fc14c93b19833b1aaee1bb27
+We chose GitHub as our CI service because it integrates well with GitHub, making it easy to automate our 
+workflow. It's straightforward to set up, has strong community support, and works well with Flutter. It also allows us 
+to automate builds, run tests, and deploy our application without needing additional tools.
+
+<<<<<<< HEAD
+=======
+### Test Infrastructure
+>>>>>>> b330c96a2dd31076fc14c93b19833b1aaee1bb27
+For our test infrastructure, we selected Flutter’s built-in testing framework because it supports unit, widget, 
+and integration testing. Since we're using Flutter for development, its testing tools are a natural choice, helping 
+us make sure our app works correctly while keeping everything in one ecosystem.
+
+### Workflow
+##### What to test
+We will run unit tests and build the web-app to ensure tests pass and builds are successful. 
+##### When to test
+Tests will be run when a push or pull request is done on the "main" branch. 
+
+### Pros/Cons 
+Here’s a detailed comparison of three popular CI/CD services for integrating with GitHub: **GitHub Actions, GitLab CI/CD, and CircleCI**.  
+
+---
+
+### **1. GitHub Actions**
+#### **Pros**
+✅ **Seamless GitHub Integration** – Built into GitHub, requiring no external setup.  
+✅ **Fine-Grained Customization** – Uses YAML workflows, enabling flexible build/test/deployment pipelines.  
+✅ **Reusable Workflows** – Can define reusable workflows across multiple repositories.  
+✅ **Managed Runners & Self-Hosted Support** – Offers GitHub-hosted runners or self-hosted options for cost savings.  
+✅ **Large Community & Marketplace** – Extensive action library (prebuilt CI/CD modules).  
+✅ **Free Tier for Open-Source Projects** – Generous free usage on public repositories.  
+
+#### **Cons**
+❌ **Pricing for Private Repos** – Free tier is limited; paid plans charge per minute for additional usage.  
+❌ **Complex Debugging** – Logs can be difficult to sift through for failures.  
+❌ **Limited Control on GitHub-Hosted Runners** – Cannot customize the environment as much as with other CI/CD tools.  
+
+---
+
+### **2. GitLab CI/CD**
+#### **Pros**
+✅ **Tightly Integrated with GitLab** – If using GitLab, built-in CI/CD simplifies workflows.  
+✅ **Docker-Native** – Built-in Docker container support for easier environment control.  
+✅ **Auto DevOps** – Offers pre-configured pipelines, reducing setup effort.  
+✅ **Better Caching** – More efficient caching than GitHub Actions for speeding up builds.  
+✅ **Free Self-Hosting** – Can run an unlimited number of self-hosted jobs on your own servers.  
+
+#### **Cons**
+❌ **Weaker GitHub Support** – Though GitLab CI/CD can be used with GitHub, integration is not as seamless.  
+❌ **Slower Cloud Runners** – Shared GitLab-hosted runners can be slow compared to GitHub Actions.  
+❌ **Less Community Support** – Compared to GitHub Actions, fewer prebuilt community-maintained jobs exist.  
+
+---
+
+### **3. CircleCI**
+#### **Pros**
+✅ **Optimized for Speed** – Parallel execution and smart caching speed up build/test times.  
+✅ **Deep GitHub Integration** – First-class GitHub support for repository-based workflows.  
+✅ **Powerful Configurations** – YAML-based setup allows advanced workflow branching and conditions.  
+✅ **Great for Teams** – Fine-grained control over workflows and approvals.  
+✅ **Supports Self-Hosted Runners** – Flexibility for private cloud/on-prem execution.  
+
+#### **Cons**
+❌ **Steeper Learning Curve** – More complex to set up than GitHub Actions.  
+❌ **More Expensive at Scale** – Usage-based pricing can add up quickly for large teams.  
+❌ **Limited Free Plan** – Free tier is more restrictive than GitHub Actions or GitLab CI/CD.  
+
+---
+
+### **Comparison Table**
+| Feature          | GitHub Actions | GitLab CI/CD | CircleCI |
+|-----------------|---------------|-------------|----------|
+| **Integration with GitHub** | ✅ Native | ⚠️ Indirect | ✅ Deep |
+| **Ease of Setup** | ✅ Easy | ✅ Easy | ⚠️ Medium |
+| **Customization** | ✅ High | ✅ High | ✅ High |
+| **Parallel Execution** | ⚠️ Limited | ✅ Yes | ✅ Yes |
+| **Self-Hosting** | ✅ Yes | ✅ Yes | ✅ Yes |
+| **Free Tier** | ✅ Generous | ✅ Good | ⚠️ Limited |
+| **Cost for Scale** | ⚠️ Can be costly | ✅ Better | ❌ Expensive |
+
+### **Final Recommendation**
+- **If your code is on GitHub and you want the easiest setup:** **GitHub Actions** is the best choice.  
+- **If you are already using GitLab or want strong Docker support:** **GitLab CI/CD** is a great option.  
+- **If you prioritize speed and advanced CI/CD workflows for a larger team:** **CircleCI** is worth considering.  
+
+
+
+### Documentation Plan
+1. User Documentation
+* In-App Help & FAQs – Tooltips, pop ups, and a web-based FAQ for common issues.
+* User Guide (PDF/Web) – Covers account creation, Spotify integration, feed interactions, messaging, and privacy settings.
+* Onboarding Tutorial – A brief walkthrough for first-time users.
+2. Developer Documentation
+* Code Docs (Auto-Generated):
+- Follow the Dart documentation guide.
+- Use dartdoc to generate docstrings from code comments.
+- Ensures team coordination without requiring separate nontechnical documentation.
+- Documentation updates align with code changes.
+- Users are not expected to read this documentation to use the app.
+* API Documentation (Swagger or Postman) – Includes endpoints, authentication, and error handling.
+* Developer Guide (GitHub Wiki) – Covers local setup, Firebase integration, debugging, and database schema.
+3. Admin Documentation
+* Admin Guide – User management, system monitoring, and security policies.
+* Deployment Docs – CI/CD setup, rollback procedures, and Firebase configuration.
+* Security & Privacy Docs – Data policies and compliance strategies.
+

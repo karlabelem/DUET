@@ -16,15 +16,19 @@ class SpotifyUserData {
   List<dynamic>? favoriteArtists;
   List<dynamic>? favoriteTracks;
 
+
   SpotifyUserData({
     required this.uuid,
-    required this.accessToken,
-    required this.refreshToken,
-    required this.username,
-    required this.email,
-    this.favoriteArtists,
-    this.favoriteTracks,
-  });
+    this.accessToken,
+    this.refreshToken,
+    this.username,
+    this.email,
+    Set<dynamic>? favoriteArtists,
+    Set<dynamic>? favoriteTracks,
+    Set<String>? favoriteGenres,
+  })  : favoriteArtists = favoriteArtists ?? {},
+        favoriteTracks = favoriteTracks ?? {},
+        favoriteGenres = favoriteGenres ?? {};
 
   static final String _clientId = dotenv.env['CLIENT_ID']!;
   // In your web app you MUST not expose a client secret.
@@ -94,8 +98,8 @@ class SpotifyUserData {
   /// Fetches the Spotify user profile (display name and email).
   Future<void> fetchUserData() async {
     final response = await _spotifyRequest('$_spotifyApiUrl/me');
-    username = response['display_name'] ?? '';
-    email = response['email'] ?? '';
+    username = response['display_name'] ?? 'Unknown';
+    email = response['email'] ?? 'Unknown';
   }
 
   /// Fetches the user’s top artists.
@@ -119,6 +123,7 @@ class SpotifyUserData {
     final response = await http.get(Uri.parse(url), headers: {
       'Authorization': 'Bearer $accessToken',
     });
+
     if (response.statusCode == 401) {
       // In implicit flow, token expiration can only be resolved by reauthentication.
       throw Exception("Access token expired or unauthorized.");
@@ -128,12 +133,11 @@ class SpotifyUserData {
 
   /// Saves the current user data to Firestore.
   Future<void> save() async {
-    await FirebaseFirestore.instance
+    await firestoreInstance!.instance
         .collection('spotify_users')
         .doc(uuid)
         .set(toMap());
   }
-
   Map<String, dynamic> toMap() => {
         'uuid': uuid,
         'accessToken': accessToken,
@@ -158,3 +162,4 @@ class SpotifyUserData {
             : null,
       );
 }
+

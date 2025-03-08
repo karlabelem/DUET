@@ -1,0 +1,826 @@
+Index: duet_application/lib/src/front_end/forgot_password_3.dart
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/duet_application/lib/src/front_end/forgot_password_3.dart b/duet_application/lib/src/front_end/forgot_password_3.dart
+new file mode 100644
+--- /dev/null	(date 1739414810979)
++++ b/duet_application/lib/src/front_end/forgot_password_3.dart	(date 1739414810979)
+@@ -0,0 +1,87 @@
++import 'package:flutter/material.dart';
++
++class FPStep3 extends StatelessWidget {
++  FPStep3({super.key, required this.nextStep});
++  final newPassword = TextEditingController();
++  final confirmedPassword = TextEditingController();
++  final Function nextStep;
++
++  @override
++  Widget build(BuildContext context) {
++    return Material( 
++      child: Center(
++      child: SizedBox(
++        width: 512,
++        height: 512,
++        child: Column(
++          children: <Widget>[
++            SizedBox(
++              width: 505,
++              child: Text.rich(
++                TextSpan(
++                  children: [
++                    TextSpan(
++                      text: 'Reset password\n',
++                      style: TextStyle(
++                        color: Color(0xFF333333),
++                        fontSize: 24,
++                        fontFamily: 'Poppins',
++                        fontWeight: FontWeight.w600,
++                        decoration: TextDecoration.none
++                      ),
++                    ),
++                    TextSpan(
++                      text: '\n',
++                      style: TextStyle(
++                        color: Color(0xFF333333),
++                        fontSize: 24,
++                        fontFamily: 'Poppins',
++                        fontWeight: FontWeight.w500,
++                        decoration: TextDecoration.none
++                      ),
++                    ),
++                    TextSpan(
++                      text:
++                          'Please type something you’ll remember.',
++                      style: TextStyle(
++                        color: Color(0xFF333333),
++                        fontSize: 15,
++                        fontFamily: 'Poppins',
++                        fontWeight: FontWeight.w500,
++                        decoration: TextDecoration.none
++                      ),
++                    ),
++                  ],
++                ),
++                textAlign: TextAlign.center,
++              ),
++            ),
++            TextField(
++              controller: newPassword,
++              decoration: InputDecoration(hintText: "New password"),
++            ),
++            TextField(
++              controller: confirmedPassword,
++              decoration: InputDecoration(hintText: "Confirm new password"),
++            ),
++            const SizedBox(height: 16),
++            ElevatedButton(
++              onPressed: () {
++                print(newPassword.text.compareTo(confirmedPassword.text) == 0);
++                nextStep();
++              },
++              style: ButtonStyle(
++                backgroundColor: WidgetStatePropertyAll<Color>(Color(0xFF5C469C))
++              ),
++              child: Center(
++                child: Text(
++                  "Reset password"
++                )
++              )
++            )
++          ],
++        ),
++      ),
++    ));
++  }
++}
+Index: duet_application/lib/src/messaging/conversation.dart
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import 'package:flutter/material.dart';\n\nclass MessagingPage extends StatefulWidget {\n  const MessagingPage({\n    super.key, \n    required this.senderId,\n    required this.receiverId\n  });\n\n  final String senderId;\n  final String receiverId;  \n\n  @override\n  State<MessagingPage> createState() => _MessaginPageState();\n  \n} \n\nclass _MessaginPageState extends State<MessagingPage> {\n\n  final typed = TextEditingController();\n  late List<Message> messages;\n  @override\n  void initState() {\n    super.initState();\n    messages = [\n      Message(widget.senderId, widget.receiverId, \"wassup gang\"),\n      Message(widget.receiverId, widget.senderId, \"yo how u doing\"),\n      Message(widget.senderId, widget.receiverId, \"been chillin fsfs\"),\n      Message(widget.receiverId, widget.senderId, \"fye\"),\n      Message(widget.senderId, widget.receiverId, \"this is random text\"),\n      Message(widget.receiverId, widget.senderId, \"just testing some stuff for sure\"),\n      Message(widget.senderId, widget.receiverId, \"short\"),\n      Message(widget.receiverId, widget.senderId, \"boutta be a long message: kfbjshdbfhsdbfhabdfhbadfhbajhdbfakhjkfbcakjdb\")\n    ];\n  }\n\n\n\n  void sendMessage(String text) {\n    List<Message> newMessages = messages.sublist(0);\n    setState(() {\n      messages = newMessages;\n    });\n    print(\"message sent\");\n  }\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n\n      appBar: AppBar(title: Text(widget.receiverId)),\n\n      body: ListView.builder(\n        scrollDirection: Axis.vertical,\n        itemCount: messages.length,\n        itemBuilder: (BuildContext context, int index){\n          Message m = messages[index];\n          if(m.sender == widget.senderId){\n            return Container(\n              alignment: Alignment.center,\n              color: Color(0xFF5C469C),\n              padding: const EdgeInsets.all(8.0),\n              transformAlignment: Alignment.topRight,\n              width: 5,\n              child: Row(\n                children: <Widget>[\n                  Flexible(child: Text(m.text))\n                ]\n              )\n            );\n          }\n          return TextBubble(isSent: m.sender == widget.senderId, msg: m.text);\n        }\n      \n      ),\n\n      bottomNavigationBar: TextField(\n\n        controller: typed,\n\n        decoration: InputDecoration(hintText: \"Type message...\"),\n\n        onSubmitted: (text) { \n          sendMessage(text);\n          typed.clear();\n        },\n      ),\n\n    );\n  }\n}\n\nclass Message {\n  const Message(this.sender, this.receiver, this.text);\n\n  final String sender;\n  final String receiver;\n  final String text;\n}\n\nclass TextBubble extends StatelessWidget {\n  const TextBubble({\n    super.key,\n    required this.isSent,\n    required this.msg\n  });\n\n  final bool isSent;\n  final String msg;\n\n  @override\n  Widget build(BuildContext context) {\n    return Column(\n      children: [\n        Container(\n          width: 167,\n          height: 48,\n          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),\n          decoration: ShapeDecoration(\n            color: (!isSent) ? Color(0xFFD4ADFC) : Color(0xFF5C469C),\n            shape: RoundedRectangleBorder(\n              borderRadius: BorderRadius.only(\n                topLeft: Radius.circular(24),\n                topRight: Radius.circular(24),\n                bottomRight: Radius.circular(24),\n              ),\n            ),\n          ),\n          child: Row(\n            mainAxisSize: MainAxisSize.min,\n            mainAxisAlignment: MainAxisAlignment.start,\n            crossAxisAlignment: CrossAxisAlignment.start,\n            children: [\n              Text(\n                msg,\n                style: TextStyle(\n                  color: (isSent) ? Colors.black : Colors.white,\n                  fontSize: 16,\n                  fontFamily: 'GDS Transport Website',\n                  fontWeight: FontWeight.w300,\n                  height: 1.50,\n                ),\n              ),\n            ],\n          ),\n        ),\n      ],\n    );\n  }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/duet_application/lib/src/messaging/conversation.dart b/duet_application/lib/src/messaging/conversation.dart
+--- a/duet_application/lib/src/messaging/conversation.dart	(revision d881717c4d7ae05fec41d82eb3543352c78f0945)
++++ b/duet_application/lib/src/messaging/conversation.dart	(date 1739414810979)
+@@ -1,22 +1,17 @@
+ import 'package:flutter/material.dart';
+ 
+ class MessagingPage extends StatefulWidget {
+-  const MessagingPage({
+-    super.key, 
+-    required this.senderId,
+-    required this.receiverId
+-  });
++  const MessagingPage(
++      {super.key, required this.senderId, required this.receiverId});
+ 
+   final String senderId;
+-  final String receiverId;  
++  final String receiverId;
+ 
+   @override
+   State<MessagingPage> createState() => _MessaginPageState();
+-  
+-} 
++}
+ 
+ class _MessaginPageState extends State<MessagingPage> {
+-
+   final typed = TextEditingController();
+   late List<Message> messages;
+   @override
+@@ -28,13 +23,13 @@
+       Message(widget.senderId, widget.receiverId, "been chillin fsfs"),
+       Message(widget.receiverId, widget.senderId, "fye"),
+       Message(widget.senderId, widget.receiverId, "this is random text"),
+-      Message(widget.receiverId, widget.senderId, "just testing some stuff for sure"),
++      Message(widget.receiverId, widget.senderId,
++          "just testing some stuff for sure"),
+       Message(widget.senderId, widget.receiverId, "short"),
+-      Message(widget.receiverId, widget.senderId, "boutta be a long message: kfbjshdbfhsdbfhabdfhbadfhbajhdbfakhjkfbcakjdb")
++      Message(widget.receiverId, widget.senderId,
++          "boutta be a long message: kfbjshdbfhsdbfhabdfhbadfhbajhdbfakhjkfbcakjdb")
+     ];
+   }
+-
+-
+ 
+   void sendMessage(String text) {
+     List<Message> newMessages = messages.sublist(0);
+@@ -47,45 +42,32 @@
+   @override
+   Widget build(BuildContext context) {
+     return Scaffold(
+-
+       appBar: AppBar(title: Text(widget.receiverId)),
+-
+       body: ListView.builder(
+-        scrollDirection: Axis.vertical,
+-        itemCount: messages.length,
+-        itemBuilder: (BuildContext context, int index){
+-          Message m = messages[index];
+-          if(m.sender == widget.senderId){
+-            return Container(
+-              alignment: Alignment.center,
+-              color: Color(0xFF5C469C),
+-              padding: const EdgeInsets.all(8.0),
+-              transformAlignment: Alignment.topRight,
+-              width: 5,
+-              child: Row(
+-                children: <Widget>[
+-                  Flexible(child: Text(m.text))
+-                ]
+-              )
+-            );
+-          }
+-          return TextBubble(isSent: m.sender == widget.senderId, msg: m.text);
+-        }
+-      
+-      ),
+-
++          scrollDirection: Axis.vertical,
++          itemCount: messages.length,
++          itemBuilder: (BuildContext context, int index) {
++            Message m = messages[index];
++            if (m.sender == widget.senderId) {
++              return Container(
++                  alignment: Alignment.center,
++                  color: Color(0xFF5C469C),
++                  padding: const EdgeInsets.all(8.0),
++                  transformAlignment: Alignment.topRight,
++                  width: 5,
++                  child:
++                      Row(children: <Widget>[Flexible(child: Text(m.text))]));
++            }
++            return TextBubble(isSent: m.sender == widget.senderId, msg: m.text);
++          }),
+       bottomNavigationBar: TextField(
+-
+         controller: typed,
+-
+         decoration: InputDecoration(hintText: "Type message..."),
+-
+-        onSubmitted: (text) { 
++        onSubmitted: (text) {
+           sendMessage(text);
+           typed.clear();
+         },
+       ),
+-
+     );
+   }
+ }
+@@ -99,11 +81,7 @@
+ }
+ 
+ class TextBubble extends StatelessWidget {
+-  const TextBubble({
+-    super.key,
+-    required this.isSent,
+-    required this.msg
+-  });
++  const TextBubble({super.key, required this.isSent, required this.msg});
+ 
+   final bool isSent;
+   final String msg;
+@@ -147,4 +125,4 @@
+       ],
+     );
+   }
+-}
+\ No newline at end of file
++}
+Index: duet_application/macos/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Scheme\n   LastUpgradeVersion = \"1510\"\n   version = \"1.3\">\n   <BuildAction\n      parallelizeBuildables = \"YES\"\n      buildImplicitDependencies = \"YES\">\n      <BuildActionEntries>\n         <BuildActionEntry\n            buildForTesting = \"YES\"\n            buildForRunning = \"YES\"\n            buildForProfiling = \"YES\"\n            buildForArchiving = \"YES\"\n            buildForAnalyzing = \"YES\">\n            <BuildableReference\n               BuildableIdentifier = \"primary\"\n               BlueprintIdentifier = \"33CC10EC2044A3C60003C045\"\n               BuildableName = \"duet_application.app\"\n               BlueprintName = \"Runner\"\n               ReferencedContainer = \"container:Runner.xcodeproj\">\n            </BuildableReference>\n         </BuildActionEntry>\n      </BuildActionEntries>\n   </BuildAction>\n   <TestAction\n      buildConfiguration = \"Debug\"\n      selectedDebuggerIdentifier = \"Xcode.DebuggerFoundation.Debugger.LLDB\"\n      selectedLauncherIdentifier = \"Xcode.DebuggerFoundation.Launcher.LLDB\"\n      shouldUseLaunchSchemeArgsEnv = \"YES\">\n      <MacroExpansion>\n         <BuildableReference\n            BuildableIdentifier = \"primary\"\n            BlueprintIdentifier = \"33CC10EC2044A3C60003C045\"\n            BuildableName = \"duet_application.app\"\n            BlueprintName = \"Runner\"\n            ReferencedContainer = \"container:Runner.xcodeproj\">\n         </BuildableReference>\n      </MacroExpansion>\n      <Testables>\n         <TestableReference\n            skipped = \"NO\"\n            parallelizable = \"YES\">\n            <BuildableReference\n               BuildableIdentifier = \"primary\"\n               BlueprintIdentifier = \"331C80D4294CF70F00263BE5\"\n               BuildableName = \"RunnerTests.xctest\"\n               BlueprintName = \"RunnerTests\"\n               ReferencedContainer = \"container:Runner.xcodeproj\">\n            </BuildableReference>\n         </TestableReference>\n      </Testables>\n   </TestAction>\n   <LaunchAction\n      buildConfiguration = \"Debug\"\n      selectedDebuggerIdentifier = \"Xcode.DebuggerFoundation.Debugger.LLDB\"\n      selectedLauncherIdentifier = \"Xcode.DebuggerFoundation.Launcher.LLDB\"\n      launchStyle = \"0\"\n      useCustomWorkingDirectory = \"NO\"\n      ignoresPersistentStateOnLaunch = \"NO\"\n      debugDocumentVersioning = \"YES\"\n      debugServiceExtension = \"internal\"\n      allowLocationSimulation = \"YES\">\n      <BuildableProductRunnable\n         runnableDebuggingMode = \"0\">\n         <BuildableReference\n            BuildableIdentifier = \"primary\"\n            BlueprintIdentifier = \"33CC10EC2044A3C60003C045\"\n            BuildableName = \"duet_application.app\"\n            BlueprintName = \"Runner\"\n            ReferencedContainer = \"container:Runner.xcodeproj\">\n         </BuildableReference>\n      </BuildableProductRunnable>\n   </LaunchAction>\n   <ProfileAction\n      buildConfiguration = \"Profile\"\n      shouldUseLaunchSchemeArgsEnv = \"YES\"\n      savedToolIdentifier = \"\"\n      useCustomWorkingDirectory = \"NO\"\n      debugDocumentVersioning = \"YES\">\n      <BuildableProductRunnable\n         runnableDebuggingMode = \"0\">\n         <BuildableReference\n            BuildableIdentifier = \"primary\"\n            BlueprintIdentifier = \"33CC10EC2044A3C60003C045\"\n            BuildableName = \"duet_application.app\"\n            BlueprintName = \"Runner\"\n            ReferencedContainer = \"container:Runner.xcodeproj\">\n         </BuildableReference>\n      </BuildableProductRunnable>\n   </ProfileAction>\n   <AnalyzeAction\n      buildConfiguration = \"Debug\">\n   </AnalyzeAction>\n   <ArchiveAction\n      buildConfiguration = \"Release\"\n      revealArchiveInOrganizer = \"YES\">\n   </ArchiveAction>\n</Scheme>\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/duet_application/macos/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme b/duet_application/macos/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme
+--- a/duet_application/macos/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme	(revision d881717c4d7ae05fec41d82eb3543352c78f0945)
++++ b/duet_application/macos/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme	(date 1739414810980)
+@@ -59,6 +59,7 @@
+       ignoresPersistentStateOnLaunch = "NO"
+       debugDocumentVersioning = "YES"
+       debugServiceExtension = "internal"
++      enableGPUValidationMode = "1"
+       allowLocationSimulation = "YES">
+       <BuildableProductRunnable
+          runnableDebuggingMode = "0">
+Index: duet_application/lib/src/front_end/forgot_password_1.dart
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/duet_application/lib/src/front_end/forgot_password_1.dart b/duet_application/lib/src/front_end/forgot_password_1.dart
+new file mode 100644
+--- /dev/null	(date 1739414810978)
++++ b/duet_application/lib/src/front_end/forgot_password_1.dart	(date 1739414810978)
+@@ -0,0 +1,84 @@
++import 'package:duet_application/src/front_end/forgot_password_2.dart';
++import 'package:duet_application/src/front_end/forgot_password_3.dart';
++import 'package:flutter/material.dart';
++
++class FPStep1 extends StatelessWidget {
++  FPStep1({super.key, required this.nextStep});
++
++  final typed = TextEditingController();
++  final Function nextStep;
++
++  @override
++  Widget build(BuildContext context) {
++    return Material(
++    child: Center(
++      child: SizedBox(
++        width: 512,
++        height: 512,
++        child: Column(
++          children: <Widget>[
++            SizedBox(
++              width: 505,
++              child: Text.rich(
++                TextSpan(
++                  children: [
++                    TextSpan(
++                      text: 'Forgot password?\n',
++                      style: TextStyle(
++                        color: Color(0xFF333333),
++                        fontSize: 24,
++                        fontFamily: 'Poppins',
++                        fontWeight: FontWeight.w600,
++                        decoration: TextDecoration.none
++                      ),
++                    ),
++                    TextSpan(
++                      text: '\n',
++                      style: TextStyle(
++                        color: Color(0xFF333333),
++                        fontSize: 24,
++                        fontFamily: 'Poppins',
++                        fontWeight: FontWeight.w500,
++                        decoration: TextDecoration.none
++                      ),
++                    ),
++                    TextSpan(
++                      text:
++                          'Don’t worry! It happens. Please enter the email associated with your account.',
++                      style: TextStyle(
++                        color: Color(0xFF333333),
++                        fontSize: 15,
++                        fontFamily: 'Poppins',
++                        fontWeight: FontWeight.w500,
++                        decoration: TextDecoration.none
++                      ),
++                    ),
++                  ],
++                ),
++                textAlign: TextAlign.center,
++              ),
++            ),
++            TextField(
++              controller: typed,
++              decoration: InputDecoration(hintText: "Input email"),
++            ),
++            const SizedBox(height: 16),
++            ElevatedButton(
++              onPressed: () {
++                nextStep();
++              },
++              style: ButtonStyle(
++                backgroundColor: WidgetStatePropertyAll<Color>(Color(0xFF5C469C))
++              ),
++              child: Center(
++                child: Text(
++                  "Send code"
++                )
++              )
++            )
++          ],
++        ),
++      ),
++    ));
++  }
++}
+Index: duet_application/lib/src/front_end/forgot_password_4.dart
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/duet_application/lib/src/front_end/forgot_password_4.dart b/duet_application/lib/src/front_end/forgot_password_4.dart
+new file mode 100644
+--- /dev/null	(date 1739414810979)
++++ b/duet_application/lib/src/front_end/forgot_password_4.dart	(date 1739414810979)
+@@ -0,0 +1,77 @@
++import 'package:flutter/material.dart';
++
++class FPStep4 extends StatelessWidget {
++  FPStep4({super.key, required this.nextStep});
++  final typed = TextEditingController();
++  final Function nextStep;
++
++  @override
++  Widget build(BuildContext context) {
++    return Material(
++    child: Center(
++      child: SizedBox(
++        width: 512,
++        height: 512,
++        child: Column(
++          children: <Widget>[
++            SizedBox(
++              width: 505,
++              child: Text.rich(
++                TextSpan(
++                  children: [
++                    TextSpan(
++                      text: 'Password changed\n',
++                      style: TextStyle(
++                        color: Color(0xFF333333),
++                        fontSize: 24,
++                        fontFamily: 'Poppins',
++                        fontWeight: FontWeight.w600,
++                        decoration: TextDecoration.none
++                      ),
++                    ),
++                    TextSpan(
++                      text: '\n',
++                      style: TextStyle(
++                        color: Color(0xFF333333),
++                        fontSize: 24,
++                        fontFamily: 'Poppins',
++                        fontWeight: FontWeight.w500,
++                        decoration: TextDecoration.none
++                      ),
++                    ),
++                    TextSpan(
++                      text:
++                          'Your password has been changed successfully',
++                      style: TextStyle(
++                        color: Color(0xFF333333),
++                        fontSize: 15,
++                        fontFamily: 'Poppins',
++                        fontWeight: FontWeight.w500,
++                        decoration: TextDecoration.none
++                      ),
++                    ),
++                  ],
++                ),
++                textAlign: TextAlign.center,
++              ),
++            ),
++            const SizedBox(height: 16),
++            ElevatedButton(
++              onPressed: () {
++                nextStep();
++              },
++              style: ButtonStyle(
++                backgroundColor: WidgetStatePropertyAll<Color>(Color(0xFF5C469C))
++              ),
++              child: Center(
++                child: Text(
++                  "Back to log in"
++                )
++              )
++            )
++          ],
++        ),
++      ),
++    ));
++  }
++}
+Index: duet_application/lib/src/app.dart
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import 'package:flutter/material.dart';\nimport 'package:flutter_gen/gen_l10n/app_localizations.dart';\nimport 'package:flutter_localizations/flutter_localizations.dart';\n\nimport 'sample_feature/sample_item_details_view.dart';\nimport 'sample_feature/sample_item_list_view.dart';\nimport 'settings/settings_controller.dart';\nimport 'settings/settings_view.dart';\n\n/// The Widget that configures your application.\nclass MyApp extends StatelessWidget {\n  const MyApp({\n    super.key,\n    required this.settingsController,\n  });\n\n  final SettingsController settingsController;\n\n  @override\n  Widget build(BuildContext context) {\n    // Glue the SettingsController to the MaterialApp.\n    //\n    // The ListenableBuilder Widget listens to the SettingsController for changes.\n    // Whenever the user updates their settings, the MaterialApp is rebuilt.\n    return ListenableBuilder(\n      listenable: settingsController,\n      builder: (BuildContext context, Widget? child) {\n        return MaterialApp(\n          // Providing a restorationScopeId allows the Navigator built by the\n          // MaterialApp to restore the navigation stack when a user leaves and\n          // returns to the app after it has been killed while running in the\n          // background.\n          restorationScopeId: 'app',\n\n          // Provide the generated AppLocalizations to the MaterialApp. This\n          // allows descendant Widgets to display the correct translations\n          // depending on the user's locale.\n          localizationsDelegates: const [\n            AppLocalizations.delegate,\n            GlobalMaterialLocalizations.delegate,\n            GlobalWidgetsLocalizations.delegate,\n            GlobalCupertinoLocalizations.delegate,\n          ],\n          supportedLocales: const [\n            Locale('en', ''), // English, no country code\n          ],\n\n          // Use AppLocalizations to configure the correct application title\n          // depending on the user's locale.\n          //\n          // The appTitle is defined in .arb files found in the localization\n          // directory.\n          onGenerateTitle: (BuildContext context) =>\n              AppLocalizations.of(context)!.appTitle,\n\n          // Define a light and dark color theme. Then, read the user's\n          // preferred ThemeMode (light, dark, or system default) from the\n          // SettingsController to display the correct theme.\n          theme: ThemeData(),\n          darkTheme: ThemeData.dark(),\n          themeMode: settingsController.themeMode,\n\n          // Define a function to handle named routes in order to support\n          // Flutter web url navigation and deep linking.\n          onGenerateRoute: (RouteSettings routeSettings) {\n            return MaterialPageRoute<void>(\n              settings: routeSettings,\n              builder: (BuildContext context) {\n                switch (routeSettings.name) {\n                  case SettingsView.routeName:\n                    return SettingsView(controller: settingsController);\n                  case SampleItemDetailsView.routeName:\n                    return const SampleItemDetailsView();\n                  case SampleItemListView.routeName:\n                  default:\n                    return const SampleItemListView();\n                }\n              },\n            );\n          },\n        );\n      },\n    );\n  }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/duet_application/lib/src/app.dart b/duet_application/lib/src/app.dart
+--- a/duet_application/lib/src/app.dart	(revision d881717c4d7ae05fec41d82eb3543352c78f0945)
++++ b/duet_application/lib/src/app.dart	(date 1739414810978)
+@@ -6,6 +6,7 @@
+ import 'sample_feature/sample_item_list_view.dart';
+ import 'settings/settings_controller.dart';
+ import 'settings/settings_view.dart';
++import 'front_end/forgot_password.dart';
+ 
+ /// The Widget that configures your application.
+ class MyApp extends StatelessWidget {
+@@ -66,15 +67,7 @@
+             return MaterialPageRoute<void>(
+               settings: routeSettings,
+               builder: (BuildContext context) {
+-                switch (routeSettings.name) {
+-                  case SettingsView.routeName:
+-                    return SettingsView(controller: settingsController);
+-                  case SampleItemDetailsView.routeName:
+-                    return const SampleItemDetailsView();
+-                  case SampleItemListView.routeName:
+-                  default:
+-                    return const SampleItemListView();
+-                }
++                return ForgotPassword();
+               },
+             );
+           },
+Index: duet_application/pubspec.lock
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># Generated by pub\n# See https://dart.dev/tools/pub/glossary#lockfile\npackages:\n  async:\n    dependency: transitive\n    description:\n      name: async\n      sha256: \"947bfcf187f74dbc5e146c9eb9c0f10c9f8b30743e341481c1e2ed3ecc18c20c\"\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"2.11.0\"\n  boolean_selector:\n    dependency: transitive\n    description:\n      name: boolean_selector\n      sha256: \"6cfb5af12253eaf2b368f07bacc5a80d1301a071c73360d746b7f2e32d762c66\"\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"2.1.1\"\n  characters:\n    dependency: transitive\n    description:\n      name: characters\n      sha256: \"04a925763edad70e8443c99234dc3328f442e811f1d8fd1a72f1c8ad0f69a605\"\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"1.3.0\"\n  clock:\n    dependency: transitive\n    description:\n      name: clock\n      sha256: cb6d7f03e1de671e34607e909a7213e31d7752be4fb66a86d29fe1eb14bfb5cf\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"1.1.1\"\n  collection:\n    dependency: transitive\n    description:\n      name: collection\n      sha256: a1ace0a119f20aabc852d165077c036cd864315bd99b7eaa10a60100341941bf\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"1.19.0\"\n  fake_async:\n    dependency: transitive\n    description:\n      name: fake_async\n      sha256: \"511392330127add0b769b75a987850d136345d9227c6b94c96a04cf4a391bf78\"\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"1.3.1\"\n  flutter:\n    dependency: \"direct main\"\n    description: flutter\n    source: sdk\n    version: \"0.0.0\"\n  flutter_lints:\n    dependency: \"direct dev\"\n    description:\n      name: flutter_lints\n      sha256: \"5398f14efa795ffb7a33e9b6a08798b26a180edac4ad7db3f231e40f82ce11e1\"\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"5.0.0\"\n  flutter_localizations:\n    dependency: \"direct main\"\n    description: flutter\n    source: sdk\n    version: \"0.0.0\"\n  flutter_test:\n    dependency: \"direct dev\"\n    description: flutter\n    source: sdk\n    version: \"0.0.0\"\n  intl:\n    dependency: transitive\n    description:\n      name: intl\n      sha256: d6f56758b7d3014a48af9701c085700aac781a92a87a62b1333b46d8879661cf\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"0.19.0\"\n  leak_tracker:\n    dependency: transitive\n    description:\n      name: leak_tracker\n      sha256: \"7bb2830ebd849694d1ec25bf1f44582d6ac531a57a365a803a6034ff751d2d06\"\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"10.0.7\"\n  leak_tracker_flutter_testing:\n    dependency: transitive\n    description:\n      name: leak_tracker_flutter_testing\n      sha256: \"9491a714cca3667b60b5c420da8217e6de0d1ba7a5ec322fab01758f6998f379\"\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"3.0.8\"\n  leak_tracker_testing:\n    dependency: transitive\n    description:\n      name: leak_tracker_testing\n      sha256: \"6ba465d5d76e67ddf503e1161d1f4a6bc42306f9d66ca1e8f079a47290fb06d3\"\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"3.0.1\"\n  lints:\n    dependency: transitive\n    description:\n      name: lints\n      sha256: c35bb79562d980e9a453fc715854e1ed39e24e7d0297a880ef54e17f9874a9d7\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"5.1.1\"\n  matcher:\n    dependency: transitive\n    description:\n      name: matcher\n      sha256: d2323aa2060500f906aa31a895b4030b6da3ebdcc5619d14ce1aada65cd161cb\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"0.12.16+1\"\n  material_color_utilities:\n    dependency: transitive\n    description:\n      name: material_color_utilities\n      sha256: f7142bb1154231d7ea5f96bc7bde4bda2a0945d2806bb11670e30b850d56bdec\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"0.11.1\"\n  meta:\n    dependency: transitive\n    description:\n      name: meta\n      sha256: bdb68674043280c3428e9ec998512fb681678676b3c54e773629ffe74419f8c7\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"1.15.0\"\n  path:\n    dependency: transitive\n    description:\n      name: path\n      sha256: \"087ce49c3f0dc39180befefc60fdb4acd8f8620e5682fe2476afd0b3688bb4af\"\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"1.9.0\"\n  sky_engine:\n    dependency: transitive\n    description: flutter\n    source: sdk\n    version: \"0.0.0\"\n  source_span:\n    dependency: transitive\n    description:\n      name: source_span\n      sha256: \"53e943d4206a5e30df338fd4c6e7a077e02254531b138a15aec3bd143c1a8b3c\"\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"1.10.0\"\n  stack_trace:\n    dependency: transitive\n    description:\n      name: stack_trace\n      sha256: \"9f47fd3630d76be3ab26f0ee06d213679aa425996925ff3feffdec504931c377\"\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"1.12.0\"\n  stream_channel:\n    dependency: transitive\n    description:\n      name: stream_channel\n      sha256: ba2aa5d8cc609d96bbb2899c28934f9e1af5cddbd60a827822ea467161eb54e7\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"2.1.2\"\n  string_scanner:\n    dependency: transitive\n    description:\n      name: string_scanner\n      sha256: \"688af5ed3402a4bde5b3a6c15fd768dbf2621a614950b17f04626c431ab3c4c3\"\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"1.3.0\"\n  term_glyph:\n    dependency: transitive\n    description:\n      name: term_glyph\n      sha256: a29248a84fbb7c79282b40b8c72a1209db169a2e0542bce341da992fe1bc7e84\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"1.2.1\"\n  test_api:\n    dependency: transitive\n    description:\n      name: test_api\n      sha256: \"664d3a9a64782fcdeb83ce9c6b39e78fd2971d4e37827b9b06c3aa1edc5e760c\"\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"0.7.3\"\n  vector_math:\n    dependency: transitive\n    description:\n      name: vector_math\n      sha256: \"80b3257d1492ce4d091729e3a67a60407d227c27241d6927be0130c98e741803\"\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"2.1.4\"\n  vm_service:\n    dependency: transitive\n    description:\n      name: vm_service\n      sha256: f6be3ed8bd01289b34d679c2b62226f63c0e69f9fd2e50a6b3c1c729a961041b\n      url: \"https://pub.dev\"\n    source: hosted\n    version: \"14.3.0\"\nsdks:\n  dart: \">=3.6.1 <4.0.0\"\n  flutter: \">=3.18.0-18.0.pre.54\"\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/duet_application/pubspec.lock b/duet_application/pubspec.lock
+--- a/duet_application/pubspec.lock	(revision d881717c4d7ae05fec41d82eb3543352c78f0945)
++++ b/duet_application/pubspec.lock	(date 1739414810981)
+@@ -5,50 +5,50 @@
+     dependency: transitive
+     description:
+       name: async
+-      sha256: "947bfcf187f74dbc5e146c9eb9c0f10c9f8b30743e341481c1e2ed3ecc18c20c"
++      sha256: d2872f9c19731c2e5f10444b14686eb7cc85c76274bd6c16e1816bff9a3bab63
+       url: "https://pub.dev"
+     source: hosted
+-    version: "2.11.0"
++    version: "2.12.0"
+   boolean_selector:
+     dependency: transitive
+     description:
+       name: boolean_selector
+-      sha256: "6cfb5af12253eaf2b368f07bacc5a80d1301a071c73360d746b7f2e32d762c66"
++      sha256: "8aab1771e1243a5063b8b0ff68042d67334e3feab9e95b9490f9a6ebf73b42ea"
+       url: "https://pub.dev"
+     source: hosted
+-    version: "2.1.1"
++    version: "2.1.2"
+   characters:
+     dependency: transitive
+     description:
+       name: characters
+-      sha256: "04a925763edad70e8443c99234dc3328f442e811f1d8fd1a72f1c8ad0f69a605"
++      sha256: f71061c654a3380576a52b451dd5532377954cf9dbd272a78fc8479606670803
+       url: "https://pub.dev"
+     source: hosted
+-    version: "1.3.0"
++    version: "1.4.0"
+   clock:
+     dependency: transitive
+     description:
+       name: clock
+-      sha256: cb6d7f03e1de671e34607e909a7213e31d7752be4fb66a86d29fe1eb14bfb5cf
++      sha256: fddb70d9b5277016c77a80201021d40a2247104d9f4aa7bab7157b7e3f05b84b
+       url: "https://pub.dev"
+     source: hosted
+-    version: "1.1.1"
++    version: "1.1.2"
+   collection:
+     dependency: transitive
+     description:
+       name: collection
+-      sha256: a1ace0a119f20aabc852d165077c036cd864315bd99b7eaa10a60100341941bf
++      sha256: "2f5709ae4d3d59dd8f7cd309b4e023046b57d8a6c82130785d2b0e5868084e76"
+       url: "https://pub.dev"
+     source: hosted
+-    version: "1.19.0"
++    version: "1.19.1"
+   fake_async:
+     dependency: transitive
+     description:
+       name: fake_async
+-      sha256: "511392330127add0b769b75a987850d136345d9227c6b94c96a04cf4a391bf78"
++      sha256: "5368f224a74523e8d2e7399ea1638b37aecfca824a3cc4dfdf77bf1fa905ac44"
+       url: "https://pub.dev"
+     source: hosted
+-    version: "1.3.1"
++    version: "1.3.3"
+   flutter:
+     dependency: "direct main"
+     description: flutter
+@@ -76,26 +76,26 @@
+     dependency: transitive
+     description:
+       name: intl
+-      sha256: d6f56758b7d3014a48af9701c085700aac781a92a87a62b1333b46d8879661cf
++      sha256: "3df61194eb431efc39c4ceba583b95633a403f46c9fd341e550ce0bfa50e9aa5"
+       url: "https://pub.dev"
+     source: hosted
+-    version: "0.19.0"
++    version: "0.20.2"
+   leak_tracker:
+     dependency: transitive
+     description:
+       name: leak_tracker
+-      sha256: "7bb2830ebd849694d1ec25bf1f44582d6ac531a57a365a803a6034ff751d2d06"
++      sha256: "6bb818ecbdffe216e81182c2f0714a2e62b593f4a4f13098713ff1685dfb6ab0"
+       url: "https://pub.dev"
+     source: hosted
+-    version: "10.0.7"
++    version: "10.0.9"
+   leak_tracker_flutter_testing:
+     dependency: transitive
+     description:
+       name: leak_tracker_flutter_testing
+-      sha256: "9491a714cca3667b60b5c420da8217e6de0d1ba7a5ec322fab01758f6998f379"
++      sha256: f8b613e7e6a13ec79cfdc0e97638fddb3ab848452eff057653abd3edba760573
+       url: "https://pub.dev"
+     source: hosted
+-    version: "3.0.8"
++    version: "3.0.9"
+   leak_tracker_testing:
+     dependency: transitive
+     description:
+@@ -116,10 +116,10 @@
+     dependency: transitive
+     description:
+       name: matcher
+-      sha256: d2323aa2060500f906aa31a895b4030b6da3ebdcc5619d14ce1aada65cd161cb
++      sha256: dc58c723c3c24bf8d3e2d3ad3f2f9d7bd9cf43ec6feaa64181775e60190153f2
+       url: "https://pub.dev"
+     source: hosted
+-    version: "0.12.16+1"
++    version: "0.12.17"
+   material_color_utilities:
+     dependency: transitive
+     description:
+@@ -132,18 +132,18 @@
+     dependency: transitive
+     description:
+       name: meta
+-      sha256: bdb68674043280c3428e9ec998512fb681678676b3c54e773629ffe74419f8c7
++      sha256: e3641ec5d63ebf0d9b41bd43201a66e3fc79a65db5f61fc181f04cd27aab950c
+       url: "https://pub.dev"
+     source: hosted
+-    version: "1.15.0"
++    version: "1.16.0"
+   path:
+     dependency: transitive
+     description:
+       name: path
+-      sha256: "087ce49c3f0dc39180befefc60fdb4acd8f8620e5682fe2476afd0b3688bb4af"
++      sha256: "75cca69d1490965be98c73ceaea117e8a04dd21217b37b292c9ddbec0d955bc5"
+       url: "https://pub.dev"
+     source: hosted
+-    version: "1.9.0"
++    version: "1.9.1"
+   sky_engine:
+     dependency: transitive
+     description: flutter
+@@ -153,50 +153,50 @@
+     dependency: transitive
+     description:
+       name: source_span
+-      sha256: "53e943d4206a5e30df338fd4c6e7a077e02254531b138a15aec3bd143c1a8b3c"
++      sha256: "254ee5351d6cb365c859e20ee823c3bb479bf4a293c22d17a9f1bf144ce86f7c"
+       url: "https://pub.dev"
+     source: hosted
+-    version: "1.10.0"
++    version: "1.10.1"
+   stack_trace:
+     dependency: transitive
+     description:
+       name: stack_trace
+-      sha256: "9f47fd3630d76be3ab26f0ee06d213679aa425996925ff3feffdec504931c377"
++      sha256: "8b27215b45d22309b5cddda1aa2b19bdfec9df0e765f2de506401c071d38d1b1"
+       url: "https://pub.dev"
+     source: hosted
+-    version: "1.12.0"
++    version: "1.12.1"
+   stream_channel:
+     dependency: transitive
+     description:
+       name: stream_channel
+-      sha256: ba2aa5d8cc609d96bbb2899c28934f9e1af5cddbd60a827822ea467161eb54e7
++      sha256: "969e04c80b8bcdf826f8f16579c7b14d780458bd97f56d107d3950fdbeef059d"
+       url: "https://pub.dev"
+     source: hosted
+-    version: "2.1.2"
++    version: "2.1.4"
+   string_scanner:
+     dependency: transitive
+     description:
+       name: string_scanner
+-      sha256: "688af5ed3402a4bde5b3a6c15fd768dbf2621a614950b17f04626c431ab3c4c3"
++      sha256: "921cd31725b72fe181906c6a94d987c78e3b98c2e205b397ea399d4054872b43"
+       url: "https://pub.dev"
+     source: hosted
+-    version: "1.3.0"
++    version: "1.4.1"
+   term_glyph:
+     dependency: transitive
+     description:
+       name: term_glyph
+-      sha256: a29248a84fbb7c79282b40b8c72a1209db169a2e0542bce341da992fe1bc7e84
++      sha256: "7f554798625ea768a7518313e58f83891c7f5024f88e46e7182a4558850a4b8e"
+       url: "https://pub.dev"
+     source: hosted
+-    version: "1.2.1"
++    version: "1.2.2"
+   test_api:
+     dependency: transitive
+     description:
+       name: test_api
+-      sha256: "664d3a9a64782fcdeb83ce9c6b39e78fd2971d4e37827b9b06c3aa1edc5e760c"
++      sha256: fb31f383e2ee25fbbfe06b40fe21e1e458d14080e3c67e7ba0acfde4df4e0bbd
+       url: "https://pub.dev"
+     source: hosted
+-    version: "0.7.3"
++    version: "0.7.4"
+   vector_math:
+     dependency: transitive
+     description:
+@@ -209,10 +209,10 @@
+     dependency: transitive
+     description:
+       name: vm_service
+-      sha256: f6be3ed8bd01289b34d679c2b62226f63c0e69f9fd2e50a6b3c1c729a961041b
++      sha256: ddfa8d30d89985b96407efce8acbdd124701f96741f2d981ca860662f1c0dc02
+       url: "https://pub.dev"
+     source: hosted
+-    version: "14.3.0"
++    version: "15.0.0"
+ sdks:
+-  dart: ">=3.6.1 <4.0.0"
++  dart: ">=3.7.0-0 <4.0.0"
+   flutter: ">=3.18.0-18.0.pre.54"
+Index: duet_application/lib/src/sample_feature/sample_item_list_view.dart
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import 'package:flutter/material.dart';\n\nimport '../settings/settings_view.dart';\nimport 'sample_item.dart';\nimport 'sample_item_details_view.dart';\n\n/// Displays a list of SampleItems.\nclass SampleItemListView extends StatelessWidget {\n  const SampleItemListView({\n    super.key,\n    this.items = const [SampleItem(1), SampleItem(2), SampleItem(3)],\n  });\n\n  static const routeName = '/';\n\n  final List<SampleItem> items;\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      appBar: AppBar(\n        title: const Text('Sample Items'),\n        actions: [\n          IconButton(\n            icon: const Icon(Icons.settings),\n            onPressed: () {\n              // Navigate to the settings page. If the user leaves and returns\n              // to the app after it has been killed while running in the\n              // background, the navigation stack is restored.\n              Navigator.restorablePushNamed(context, SettingsView.routeName);\n            },\n          ),\n        ],\n      ),\n\n      // To work with lists that may contain a large number of items, it’s best\n      // to use the ListView.builder constructor.\n      //\n      // In contrast to the default ListView constructor, which requires\n      // building all Widgets up front, the ListView.builder constructor lazily\n      // builds Widgets as they’re scrolled into view.\n      body: ListView.builder(\n        // Providing a restorationId allows the ListView to restore the\n        // scroll position when a user leaves and returns to the app after it\n        // has been killed while running in the background.\n        restorationId: 'sampleItemListView',\n        itemCount: items.length,\n        itemBuilder: (BuildContext context, int index) {\n          final item = items[index];\n\n          return ListTile(\n            title: Text('SampleItem ${item.id}'),\n            leading: const CircleAvatar(\n              // Display the Flutter Logo image asset.\n              foregroundImage: AssetImage('assets/images/flutter_logo.png'),\n            ),\n            onTap: () {\n              // Navigate to the details page. If the user leaves and returns to\n              // the app after it has been killed while running in the\n              // background, the navigation stack is restored.\n              Navigator.restorablePushNamed(\n                context,\n                SampleItemDetailsView.routeName,\n              );\n            }\n          );\n        },\n      ),\n    );\n  }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/duet_application/lib/src/sample_feature/sample_item_list_view.dart b/duet_application/lib/src/sample_feature/sample_item_list_view.dart
+--- a/duet_application/lib/src/sample_feature/sample_item_list_view.dart	(revision d881717c4d7ae05fec41d82eb3543352c78f0945)
++++ b/duet_application/lib/src/sample_feature/sample_item_list_view.dart	(date 1739414810980)
+@@ -49,21 +49,20 @@
+           final item = items[index];
+ 
+           return ListTile(
+-            title: Text('SampleItem ${item.id}'),
+-            leading: const CircleAvatar(
+-              // Display the Flutter Logo image asset.
+-              foregroundImage: AssetImage('assets/images/flutter_logo.png'),
+-            ),
+-            onTap: () {
+-              // Navigate to the details page. If the user leaves and returns to
+-              // the app after it has been killed while running in the
+-              // background, the navigation stack is restored.
+-              Navigator.restorablePushNamed(
+-                context,
+-                SampleItemDetailsView.routeName,
+-              );
+-            }
+-          );
++              title: Text('SampleItem ${item.id}'),
++              leading: const CircleAvatar(
++                // Display the Flutter Logo image asset.
++                foregroundImage: AssetImage('assets/images/flutter_logo.png'),
++              ),
++              onTap: () {
++                // Navigate to the details page. If the user leaves and returns to
++                // the app after it has been killed while running in the
++                // background, the navigation stack is restored.
++                Navigator.restorablePushNamed(
++                  context,
++                  SampleItemDetailsView.routeName,
++                );
++              });
+         },
+       ),
+     );
+Index: duet_application/lib/src/front_end/forgot_password_2.dart
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/duet_application/lib/src/front_end/forgot_password_2.dart b/duet_application/lib/src/front_end/forgot_password_2.dart
+new file mode 100644
+--- /dev/null	(date 1739414810978)
++++ b/duet_application/lib/src/front_end/forgot_password_2.dart	(date 1739414810978)
+@@ -0,0 +1,82 @@
++import 'package:flutter/material.dart';
++
++class FPStep2 extends StatelessWidget {
++  FPStep2({super.key, required this.nextStep});
++  final typed = TextEditingController();
++  final Function nextStep;
++
++  @override
++  Widget build(BuildContext context) {
++    return Material(
++      child: Center(
++      child: SizedBox(
++        width: 512,
++        height: 512,
++        child: Column(
++          children: <Widget>[
++            SizedBox(
++              width: 505,
++              child: Text.rich(
++                TextSpan(
++                  children: [
++                    TextSpan(
++                      text: 'Please check your email\n',
++                      style: TextStyle(
++                        color: Color(0xFF333333),
++                        fontSize: 24,
++                        fontFamily: 'Poppins',
++                        fontWeight: FontWeight.w600,
++                        decoration: TextDecoration.none
++                      ),
++                    ),
++                    TextSpan(
++                      text: '\n',
++                      style: TextStyle(
++                        color: Color(0xFF333333),
++                        fontSize: 24,
++                        fontFamily: 'Poppins',
++                        fontWeight: FontWeight.w500,
++                        decoration: TextDecoration.none
++                      ),
++                    ),
++                    TextSpan(
++                      text:
++                          'We\'ve sent a code',
++                      style: TextStyle(
++                        color: Color(0xFF333333),
++                        fontSize: 15,
++                        fontFamily: 'Poppins',
++                        fontWeight: FontWeight.w500,
++                        decoration: TextDecoration.none
++                      ),
++                    ),
++                  ],
++                ),
++                textAlign: TextAlign.center,
++              ),
++            ),
++            TextField(
++              controller: typed,
++              decoration: InputDecoration(hintText: "Input code"),
++            ),
++            const SizedBox(height: 16),
++            ElevatedButton(
++              onPressed: () {
++                nextStep();
++              },
++              style: ButtonStyle(
++                backgroundColor: WidgetStatePropertyAll<Color>(Color(0xFF5C469C))
++              ),
++              child: Center(
++                child: Text(
++                  "Verify"
++                )
++              )
++            )
++          ],
++        ),
++      ),
++    ));
++  }
++
++}

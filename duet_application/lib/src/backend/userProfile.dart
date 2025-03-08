@@ -12,6 +12,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'spotifyUserData.dart';
+import 'firestore_instance.dart';
 
 // Create an instance of the Uuid class
 var _uuidGen = Uuid();
@@ -22,21 +23,25 @@ var _uuidGen = Uuid();
 // Rankings can be dynamically updated via the `rankUser` method.
 class UserProfileData {
   final String _uuid; // Private unique user ID
-  String name, email, dob, location;
-  String imageUrl, bio;
+  String name, email, dob, location, bio, password;
+  SpotifyUserData? spotifyData;
+  String? imageUrl;
   List<String> likedUsers; // Stores liked users with user UUIDs
   List<String> dislikedUsers; // Stores liked users with user UUIDs
 
   UserProfileData({
+    uuid,
     required this.name,
     required this.email,
     required this.dob,
     required this.location,
-    required this.imageUrl,
+    required this.password,
+    this.spotifyData,
+    this.imageUrl,
     this.bio = "",
     List<String>? likedUsers,
     List<String>? dislikedUsers,
-  })  : _uuid = _uuidGen.v4(),
+  })  : _uuid = uuid ?? _uuidGen.v4(),
         likedUsers = likedUsers ?? [],
         dislikedUsers = dislikedUsers ?? [];
 
@@ -47,6 +52,7 @@ class UserProfileData {
       'name': name,
       'email': email,
       'dob': dob,
+      'password': password,
       'location': location,
       'imageUrl': imageUrl,
       'bio': bio,
@@ -58,9 +64,11 @@ class UserProfileData {
   // Create an instance from Firestore data
   factory UserProfileData.fromMap(Map<String, dynamic> data) {
     return UserProfileData(
+      uuid: data['uuid'] ?? '',
       name: data['name'] ?? '',
       email: data['email'] ?? '',
       dob: data['dob'] ?? '',
+      password: data['password'] ?? '',
       location: data['location'] ?? '',
       imageUrl: data['imageUrl'] ?? '',
       bio: data['bio'] ?? '',
@@ -73,16 +81,30 @@ class UserProfileData {
 
   // Save user profile data to Firestore
   Future<void> saveToFirestore() async {
-    await FirebaseFirestore.instance
+    await firestoreInstance!.instance
         .collection('users')
         .doc(uuid)
         .set(toMap()); // creates users collection
   }
 
+  // Method to link Spotify profile
+  Future<void> linkSpotifyProfile() async {
+    spotifyData = await SpotifyUserData.createSpotifyProfile(uuid);
+  }
+
+  // Fetch or update Spotify data
+  Future<void> updateSpotifyData() async {
+    if (spotifyData != null) {
+      await spotifyData!.updateSpotifyData();
+    } else {
+      await linkSpotifyProfile();
+    }
+  }
+
   // Method to get Spotify User Data
   // For algorihtm
   Future<SpotifyUserData?> getSpotifyUserData() async {
-    final spotifyRef = FirebaseFirestore.instance
+    final spotifyRef = firestoreInstance!.instance
         .collection('spotify_users')
         .doc(uuid); // fetch Spotify data based on the user UUID
     final spotifySnapshot = await spotifyRef.get();
@@ -92,24 +114,10 @@ class UserProfileData {
     return null;
   }
 
-  // Create Spotify profile if it doesn't exist, or update it if it does
-  // For UI
-  Future<void> useSpotifyProfileData() async {
-    final spotifyData = await getSpotifyUserData();
-    
-    if (spotifyData == null) {
-      // Spotify data does not exist, create a new profile
-      await SpotifyUserData.createSpotifyProfile(uuid);
-    } else {
-      // Spotify data exists, update the existing profile
-      await spotifyData.updateSpotifyData();
-    }
-  }
-
   // Method for getting UserProfile Snapshot shortcut
   // For Algorithm
-  Future<UserProfileData?> getUserProfile(String userId) async {
-    final userRef = FirebaseFirestore.instance
+  static Future<UserProfileData?> getUserProfile(String userId) async {
+    final userRef = firestoreInstance!.instance
         .collection('users')
         .doc(userId); // fetch data from Firestore users collection
     final userSnapshot = await userRef.get();
@@ -122,12 +130,12 @@ class UserProfileData {
   // Swipe function to update userprofile
   // For UI
   Future<void> swipeUser(String otherUuid, bool isLiked) async {
-    final userRef = FirebaseFirestore.instance
+    final userRef = firestoreInstance!.instance
         .collection('users')
         .doc(uuid); // fetch data from Firestore users collection
 
     // Transaction is for updating data in Firebase directly rather than updating on local class
-    await FirebaseFirestore.instance.runTransaction((transaction) async {
+    await firestoreInstance!.instance.runTransaction((transaction) async {
       // Access to user snapshot with transaction
       final userTransaction = await transaction.get(userRef);
       if (!userTransaction.exists) return;
@@ -160,49 +168,50 @@ class UserProfileData {
 
   // Method to update bio info
   // For UI
-  Future<void> updateBio(String newBio) async {
-    final userRef = FirebaseFirestore.instance.collection('users').doc(uuid);
+  Future<int> updateBio(String newBio) async {
+    try {
+      final userRef = firestoreInstance!.instance.collection('users').doc(uuid);
 
-    // Run a transaction to update the bio
-    await FirebaseFirestore.instance.runTransaction((transaction) async {
-      final userTransaction = await transaction.get(userRef);
-      if (!userTransaction.exists) return;
-
-      // Update the bio directly in Firestore
-      transaction.update(userRef, {
+      // Update the bio directly in Firestore without a transaction
+      await userRef.update({
         'bio': newBio,
       });
-    });
+      return 0;
+    } catch (e) {
+      // ignore: avoid_print
+      print(e);
+      return 1;
+    }
   }
 
   // Method to update profile details (name, dob, location)
   // For UI
-  Future<void> updateProfile(String newName, String newEmail, String newDob,
-      String newLocation) async {
-    final userRef = FirebaseFirestore.instance.collection('users').doc(uuid);
+  Future<int> updateProfile(String newName, String newEmail, String newDob, String newLocation) async {
+    try {
+      final userRef = firestoreInstance!.instance.collection('users').doc(uuid);
 
-    // Run a transaction to update profile details
-    await FirebaseFirestore.instance.runTransaction((transaction) async {
-      final userTransaction = await transaction.get(userRef);
-      if (!userTransaction.exists) return;
-
-      // Update profile details directly in Firestore
-      transaction.update(userRef, {
+      // Update profile details directly in Firestore without a transaction
+      await userRef.update({
         'name': newName,
         'email': newEmail,
         'dob': newDob,
         'location': newLocation,
       });
-    });
+      return 0;
+    } catch (e) {
+      // ignore: avoid_print
+      print(e);
+      return 1;
+    }
   }
 
   // Method to update profile picture
   // For UI
   Future<void> updateImage(String newImageUrl) async {
-    final userRef = FirebaseFirestore.instance.collection('users').doc(uuid);
+    final userRef = firestoreInstance!.instance.collection('users').doc(uuid);
 
     // Run a transaction to update profile details
-    await FirebaseFirestore.instance.runTransaction((transaction) async {
+    await firestoreInstance!.instance.runTransaction((transaction) async {
       final userTransaction = await transaction.get(userRef);
       if (!userTransaction.exists) return;
 
@@ -212,4 +221,18 @@ class UserProfileData {
       });
     });
   }
+}
+
+// Method to get user profile based on email and password
+Future<UserProfileData?> getUserProfileByEmailAndPassword(dynamic email, dynamic password) async {
+  final userQuery = await firestoreInstance!.instance
+      .collection('users')
+      .where('email', isEqualTo: email)
+      .where('password', isEqualTo: password)
+      .limit(1)
+      .get();
+  if (userQuery.docs.isNotEmpty) {
+    return UserProfileData.fromMap(userQuery.docs.first.data());
+  }
+  return null;
 }

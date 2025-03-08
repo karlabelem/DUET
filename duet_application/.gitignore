@@ -32,6 +32,9 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+# Should always run flutter pub get to get correct file configuration
+# Pull requests into main will automatically run flutter pub get
+.pubspec.lock
 
 # Symbolication related
 app.*.symbols
@@ -43,3 +46,5 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+*.deb
