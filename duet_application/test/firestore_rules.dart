@@ -21,6 +21,10 @@ void main() {
         match /users/{userId} {
           allow read, write: if request.auth != null && request.auth.uid == userId;
         }
+
+        match/{document=**} {
+      allow read, write: if request.auth != null
+    }
       }
     }
       ''',
@@ -28,6 +32,8 @@ void main() {
     );
     makeFirestoreInstance(instance: firestore);
     makeAuthenticationInstance(instance: auth);
+
+    
 
     test('Saving new profile to database', () async {
     // Create users in Firestore
@@ -61,6 +67,9 @@ void main() {
       expect(login!.email, email);
       expect(login.password, password);
     });
+
+
+    
 
 
   });
