@@ -25,7 +25,7 @@ var _uuidGen = Uuid();
 // Rankings can be dynamically updated via the `rankUser` method.
 class UserProfileData {
   final String _uuid; // Private unique user ID
-  late final String _authId;
+  late String _authId;
   String name, email, dob, location, bio, password;
   SpotifyUserData? spotifyData;
   String? imageUrl;
@@ -44,9 +44,11 @@ class UserProfileData {
     this.bio = "",
     List<String>? likedUsers,
     List<String>? dislikedUsers,
+    String? authId,
   })  : _uuid = uuid ?? _uuidGen.v4(),
         likedUsers = likedUsers ?? [],
-        dislikedUsers = dislikedUsers ?? [];
+        dislikedUsers = dislikedUsers ?? [],
+        _authId = authId ?? '';
 
   
 
@@ -63,6 +65,7 @@ class UserProfileData {
       'bio': bio,
       'likedUsers': likedUsers,
       'dislikedUsers': dislikedUsers,
+      'authid': authId
     };
   }
 
@@ -77,6 +80,7 @@ class UserProfileData {
       location: data['location'] ?? '',
       imageUrl: data['imageUrl'] ?? '',
       bio: data['bio'] ?? '',
+      authId: data['authid'] ?? '',
       likedUsers: List<String>.from(data['likedUsers'] ?? []),
       dislikedUsers: List<String>.from(data['dislikedUsers'] ?? []),
     );
