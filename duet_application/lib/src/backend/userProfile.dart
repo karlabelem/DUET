@@ -15,6 +15,8 @@ import 'package:uuid/uuid.dart';
 import 'spotifyUserData.dart';
 import 'firestore_instance.dart';
 import 'authentication_instance.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 // Create an instance of the Uuid class
 var _uuidGen = Uuid();
@@ -31,6 +33,7 @@ class UserProfileData {
   String? imageUrl;
   List<String> likedUsers; // Stores liked users with user UUIDs
   List<String> dislikedUsers; // Stores liked users with user UUIDs
+  late String _passwordHash; //  Securely store password hash
 
   UserProfileData({
     uuid,
@@ -38,7 +41,7 @@ class UserProfileData {
     required this.email,
     required this.dob,
     required this.location,
-    required this.password,
+    required String password,
     this.spotifyData,
     this.imageUrl,
     this.bio = "",
@@ -47,10 +50,10 @@ class UserProfileData {
     String? authId,
   })  : _uuid = uuid ?? _uuidGen.v4(),
         likedUsers = likedUsers ?? [],
-        dislikedUsers = dislikedUsers ?? [],
         _authId = authId ?? '';
-
-  
+        dislikedUsers = dislikedUsers ?? [] {
+    _passwordHash = _hashPassword(password); // Assign password inside constructor body
+  }
 
   // Convert to Firestore format
   Map<String, dynamic> toMap() {
@@ -59,7 +62,8 @@ class UserProfileData {
       'name': name,
       'email': email,
       'dob': dob,
-      'password': password,
+      'passwordHash': _passwordHash, // Store only hashed password
+      // 'password': password,
       'location': location,
       'imageUrl': imageUrl,
       'bio': bio,
@@ -76,15 +80,26 @@ class UserProfileData {
       name: data['name'] ?? '',
       email: data['email'] ?? '',
       dob: data['dob'] ?? '',
-      password: data['password'] ?? '',
+      password: '', // password: data['password'] ?? '',
       location: data['location'] ?? '',
       imageUrl: data['imageUrl'] ?? '',
       bio: data['bio'] ?? '',
       authId: data['authid'] ?? '',
       likedUsers: List<String>.from(data['likedUsers'] ?? []),
       dislikedUsers: List<String>.from(data['dislikedUsers'] ?? []),
-    );
+    ).._passwordHash = data['passwordHash']; // 🔒 Assign password hash
   }
+
+   // Hash password using SHA-256
+  static String _hashPassword(String password) {
+    return sha256.convert(utf8.encode(password)).toString();
+  }
+
+  // Verify password
+  bool verifyPassword(String password) {
+    return _passwordHash == _hashPassword(password);
+  }
+
   // Getter for _uuid (to allow read access)
   String get uuid => _uuid;
   String get authId => _authId;
