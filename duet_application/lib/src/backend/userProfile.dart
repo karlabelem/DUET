@@ -41,7 +41,7 @@ class UserProfileData {
     required this.email,
     required this.dob,
     required this.location,
-    required String password,
+    required this.password,
     this.spotifyData,
     this.imageUrl,
     this.bio = "",
@@ -50,10 +50,10 @@ class UserProfileData {
     String? authId,
   })  : _uuid = uuid ?? _uuidGen.v4(),
         likedUsers = likedUsers ?? [],
-        _authId = authId ?? '';
-        dislikedUsers = dislikedUsers ?? [] {
-    _passwordHash = _hashPassword(password); // Assign password inside constructor body
-  }
+        _authId = authId ?? '',
+        dislikedUsers = dislikedUsers ?? [], 
+        _passwordHash = _hashPassword(password); // Assign password inside constructor body
+  
 
   // Convert to Firestore format
   Map<String, dynamic> toMap() {
