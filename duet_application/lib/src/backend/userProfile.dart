@@ -47,7 +47,7 @@ class UserProfileData {
   })  : _uuid = uuid ?? _uuidGen.v4(),
         likedUsers = likedUsers ?? [],
         dislikedUsers = dislikedUsers ?? [] {
-    _passwordHash = _hashPassword(password); // ✅ Assign password inside constructor body
+    _passwordHash = _hashPassword(password); // Assign password inside constructor body
   }
 
   // Convert to Firestore format
@@ -57,7 +57,7 @@ class UserProfileData {
       'name': name,
       'email': email,
       'dob': dob,
-      'passwordHash': _passwordHash, // 🔒 Store only hashed password
+      'passwordHash': _passwordHash, // Store only hashed password
       // 'password': password,
       'location': location,
       'imageUrl': imageUrl,
