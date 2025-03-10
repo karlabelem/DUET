@@ -4,7 +4,7 @@ import 'conversation.dart';
 import 'list_conversations.dart';
 
 class MessagingPage extends StatefulWidget {
-  MessagingPage({super.key, required UserProfileData loggedInUser}): loggedInUserId = loggedInUser.uuid;
+  MessagingPage({super.key, required UserProfileData loggedInUser}): loggedInUserId = loggedInUser.authId;
 
   final String loggedInUserId;
 

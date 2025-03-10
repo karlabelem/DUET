@@ -150,7 +150,7 @@ class UserProfileData {
   Future<void> swipeUser(String otherUuid, bool isLiked) async {
     final userRef = firestoreInstance!.instance
         .collection('users')
-        .doc(uuid); // fetch data from Firestore users collection
+        .doc(authId); // fetch data from Firestore users collection
 
     // Transaction is for updating data in Firebase directly rather than updating on local class
     await firestoreInstance!.instance.runTransaction((transaction) async {

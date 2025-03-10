@@ -31,7 +31,7 @@ class _SwipeUserScreenState extends State<SwipeUserScreen> {
                 child: IconButton(
                   icon: Icon(Icons.thumb_down, color: Colors.red, size: 50),
                   onPressed: () {
-                    widget.swipeAction(false, widget.userProfile.uuid); // Swiped left (dislike)
+                    widget.swipeAction(false, widget.userProfile.authId); // Swiped left (dislike)
                   },
                 ),
               ),
@@ -48,7 +48,7 @@ class _SwipeUserScreenState extends State<SwipeUserScreen> {
                 child: IconButton(
                   icon: Icon(Icons.thumb_up, color: Colors.green, size: 50),
                   onPressed: () {
-                    widget.swipeAction(true, widget.userProfile.uuid); // Swiped right (like)
+                    widget.swipeAction(true, widget.userProfile.authId); // Swiped right (like)
                   },
                 ),
               ),

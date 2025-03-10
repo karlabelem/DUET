@@ -1,3 +1,4 @@
+import 'package:duet_application/src/backend/authentication_instance.dart';
 import 'package:duet_application/src/backend/userProfile.dart';
 import 'package:duet_application/src/frontEnd/login_screen.dart';
 import 'package:duet_application/src/frontEnd/userProfileScreen.dart';
@@ -36,7 +37,8 @@ class _MyAppState extends State<MyApp> {
   AppState appState = AppState.login;
   UserProfileData? loggedInUser;
 
-  void openLoginScreen() {
+  void openLoginScreen() async {
+    await authenticationInstance!.instance.signOut();
     setState(() {
       appState = AppState.login;
       loggedInUser = null;
@@ -144,7 +146,7 @@ class _MyAppState extends State<MyApp> {
                               : 2,
                       children: [
                         UserProfileScreen(
-                            userUuid: loggedInUser!.uuid,
+                            user: loggedInUser!,
                             logOut: openLoginScreen),
                         MessagingPage(
                           loggedInUser: loggedInUser!,
