@@ -28,7 +28,7 @@ var _uuidGen = Uuid();
 class UserProfileData {
   final String _uuid; // Private unique user ID
   late String _authId;
-  String name, email, dob, location, bio, password;
+  String name, email, dob, location, bio;
   SpotifyUserData? spotifyData;
   String? imageUrl;
   List<String> likedUsers; // Stores liked users with user UUIDs
@@ -41,7 +41,7 @@ class UserProfileData {
     required this.email,
     required this.dob,
     required this.location,
-    required this.password,
+    required String password,
     this.spotifyData,
     this.imageUrl,
     this.bio = "",
@@ -63,7 +63,6 @@ class UserProfileData {
       'email': email,
       'dob': dob,
       'passwordHash': _passwordHash, // Store only hashed password
-      // 'password': password,
       'location': location,
       'imageUrl': imageUrl,
       'bio': bio,
@@ -107,8 +106,8 @@ class UserProfileData {
   // Save user profile data to Firestore
   Future<void> saveToFirestore() async {
     try{
-      await authenticationInstance!.instance.createUserWithEmailAndPassword(email: email, password: password);
-      await authenticationInstance!.instance.signInWithEmailAndPassword(email: email, password: password);
+      await authenticationInstance!.instance.createUserWithEmailAndPassword(email: email, password: _passwordHash);
+      await authenticationInstance!.instance.signInWithEmailAndPassword(email: email, password: _passwordHash);
       _authId = authenticationInstance!.instance.currentUser!.uid;
       await firestoreInstance!.instance
         .collection('users')
@@ -256,12 +255,13 @@ class UserProfileData {
   }
 
   // Method to get user profile based on email and password
-static Future<UserProfileData?> getUserProfileByEmailAndPassword(dynamic email, dynamic password) async {
-  authenticationInstance!.instance.signInWithEmailAndPassword(email: email, password: password);
+static Future<UserProfileData?> getUserProfileByEmailAndPassword(String email, String password) async {
+  String hashedPassword = _hashPassword(password);
+  authenticationInstance!.instance.signInWithEmailAndPassword(email: email, password: hashedPassword);
   final userQuery = await firestoreInstance!.instance
       .collection('users')
       .where('email', isEqualTo: email)
-      .where('password', isEqualTo: password)
+      .where('passwordHash', isEqualTo: hashedPassword)
       .limit(1)
       .get();
   if (userQuery.docs.isNotEmpty) {
