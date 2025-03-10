@@ -72,6 +72,7 @@ This project aims to connect people through shared musical interests, creating f
     ```
 3.1. **Clean and rerun**
     You may need to run the following segment if you downloaded other pub.yaml contents, such as for testing another team's beta++:
+    
     ```
     flutter clean
     flutter pub get
@@ -80,6 +81,7 @@ This project aims to connect people through shared musical interests, creating f
 
 3.2. **webport**
     Add the webport
+    
     ```
     flutter run --web-port=5000
     ```
