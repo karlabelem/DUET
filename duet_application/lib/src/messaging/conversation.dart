@@ -37,12 +37,14 @@ class _IndividualDMPageState extends State<IndividualDMPage> {
   /// Gets conversation from Firestore
   Future<Messagingbackend> getMessages() async {
     // Get conversation if previous one exists
-    Messagingbackend? msgs = await getConversation(widget.loggedInUser, widget.otherUser);
-    
+    Messagingbackend? msgs =
+        await getConversation(widget.loggedInUser, widget.otherUser);
+
     // Create and save conversation if a new one is needed
     if (msgs == null) {
       // Create new conversation
-      msgs = Messagingbackend(uuid1: widget.loggedInUser, uuid2: widget.otherUser);
+      msgs =
+          Messagingbackend(uuid1: widget.loggedInUser, uuid2: widget.otherUser);
       int exitCode = await msgs.saveToFirestore();
       if (exitCode != 0) {
         // ignore: avoid_print
@@ -76,7 +78,7 @@ class _IndividualDMPageState extends State<IndividualDMPage> {
             widget.otherUserName,
             style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: Color(0xFFD4ADFC),
+          backgroundColor: const Color(0xFF5C469C),
           leading: BackButtonWidget(goBack: widget.goBack),
         ),
         body: FutureBuilder<Messagingbackend>(
@@ -106,16 +108,31 @@ class _IndividualDMPageState extends State<IndividualDMPage> {
           },
         ),
         bottomNavigationBar: Container(
+          padding: EdgeInsets.all(8.0), // Add padding around the entire row
           child: Row(
             children: <Widget>[
               Expanded(
-                child: TextField(
-                  controller: typed,
-                  decoration: InputDecoration(hintText: "Type message..."),
-                  onSubmitted: (text) async {
-                    await sendMessage(text);
-                    typed.clear();
-                  },
+                child: Container(
+                  margin: EdgeInsets.only(right: 8.0),
+                  child: Container(
+                    padding: EdgeInsets.only(left: 8.0, top: 1.0, bottom: 1.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20.0),
+                      border: Border.all(color: Colors.grey),
+                    ),
+                    child: TextField(
+                      controller: typed,
+                      decoration: InputDecoration(
+                        hintText: "Type message...",
+                        border: InputBorder.none,
+                      ),
+                      onSubmitted: (text) async {
+                        await sendMessage(text);
+                        typed.clear();
+                      },
+                    ),
+                  ),
                 ),
               ),
               SendButton(
@@ -139,6 +156,7 @@ class TextBubble extends StatelessWidget {
 
   /// Message object to display
   final Message msg;
+
   /// The user sending the message
   final String sender;
 
@@ -147,11 +165,14 @@ class TextBubble extends StatelessWidget {
     return Container(
       padding: EdgeInsets.only(left: 14, right: 14, top: 10, bottom: 10),
       child: Align(
-        alignment: ((msg.sender == sender) ? Alignment.topRight : Alignment.topLeft),
+        alignment:
+            ((msg.sender == sender) ? Alignment.topRight : Alignment.topLeft),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: ((msg.sender == sender) ? Color(0xFF5C469C) : Color(0xFFD4ADFC)),
+            color: ((msg.sender == sender)
+                ? Color(0xFF5C469C)
+                : Color(0xFFD4ADFC)),
           ),
           padding: EdgeInsets.all(16),
           child: Text(
