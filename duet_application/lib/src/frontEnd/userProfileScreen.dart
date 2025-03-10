@@ -5,33 +5,27 @@ import 'package:duet_application/src/backend/spotifyUserData.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserProfileScreen extends StatefulWidget {
-  final String userUuid;
+  final UserProfileData user;
   final Function logOut;
 
   const UserProfileScreen(
-      {super.key, required this.userUuid, required this.logOut});
+      {super.key, required this.user, required this.logOut});
 
   @override
   State<UserProfileScreen> createState() => _UserProfileScreenState();
 }
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
-  late Future<UserProfileData?> _userProfileFuture;
   late Future<Set<String>> _favoriteGenresFuture;
 
   @override
   void initState() {
     super.initState();
-    _userProfileFuture = _fetchUserProfile();
     _favoriteGenresFuture = _loadTopGenres();
   }
 
-  Future<UserProfileData?> _fetchUserProfile() async {
-    return await UserProfileData.getUserProfile(widget.userUuid);
-  }
-
   Future<Set<String>> _loadTopGenres() async {
-    SpotifyUserData? userData = await SpotifyUserData.get(widget.userUuid);
+    SpotifyUserData? userData = await SpotifyUserData.get(widget.user.uuid);
     return userData.favoriteGenres ?? {};
   }
 
@@ -67,38 +61,25 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           },
         ),
       ),
-      body: FutureBuilder<UserProfileData?>(
-        future: _userProfileFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data == null) {
-            return Center(child: Text('User profile not found.'));
-          } else {
-            final userProfile = snapshot.data!;
-            return Container(
+      body:  Container(
               color: const Color(0xFFE6E6FA), // Lilac background
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildProfileCard(userProfile), // Profile Card
+                  _buildProfileCard(widget.user), // Profile Card
                   const SizedBox(width: 16),
                   _buildAboutMeCard(
-                      userProfile), // About Me section next to Profile Card
+                      widget.user), // About Me section next to Profile Card
                   const SizedBox(width: 16),
                   _buildTopGenresCard(), // Music section next to About Me section
                   const SizedBox(width: 16),
                 ],
               ),
-            );
-          }
-        },
-      ),
+            )
     );
-  }
+          }
+        
 
   Widget _buildProfileCard(UserProfileData userProfile) {
     return Container(

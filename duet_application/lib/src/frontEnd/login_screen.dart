@@ -17,7 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
 
   void login(String email, String password) async {
-    final user = await getUserProfileByEmailAndPassword(email, password);
+    final user = await UserProfileData.getUserProfileByEmailAndPassword(email, password);
     if (user != null) {
       widget.onLogin(user);
     } else {
