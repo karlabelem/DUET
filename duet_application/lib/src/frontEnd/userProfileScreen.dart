@@ -5,33 +5,27 @@ import 'package:duet_application/src/backend/spotifyUserData.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserProfileScreen extends StatefulWidget {
-  final String userUuid;
+  final UserProfileData user;
   final Function logOut;
 
   const UserProfileScreen(
-      {super.key, required this.userUuid, required this.logOut});
+      {super.key, required this.user, required this.logOut});
 
   @override
   State<UserProfileScreen> createState() => _UserProfileScreenState();
 }
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
-  late Future<UserProfileData?> _userProfileFuture;
   late Future<Set<String>> _favoriteGenresFuture;
 
   @override
   void initState() {
     super.initState();
-    _userProfileFuture = _fetchUserProfile();
     _favoriteGenresFuture = _loadTopGenres();
   }
 
-  Future<UserProfileData?> _fetchUserProfile() async {
-    return await UserProfileData.getUserProfile(widget.userUuid);
-  }
-
   Future<Set<String>> _loadTopGenres() async {
-    SpotifyUserData? userData = await SpotifyUserData.get(widget.userUuid);
+    SpotifyUserData? userData = await SpotifyUserData.get(widget.user.uuid);
     return userData.favoriteGenres ?? {};
   }
 
@@ -116,12 +110,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   ],
                 ),
               ),
-            );
-          }
-        },
-      ),
+            )
     );
-  }
+          }
+        
 
   Widget _buildProfileHeader(UserProfileData userProfile) {
     return Container(

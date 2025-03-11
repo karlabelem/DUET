@@ -69,6 +69,22 @@ This project aims to connect people through shared musical interests, creating f
    To run the app on your desired platform (iOS/Android), execute the following command:
    ```bash
    flutter run
+    ```
+3.1. **Clean and rerun**
+    You may need to run the following segment if you downloaded other pub.yaml contents, such as for testing another team's beta++:
+    
+    ```
+    flutter clean
+    flutter pub get
+    flutter upgrade
+    ```
+
+3.2. **webport**
+    Add the webport
+    
+    ```
+    flutter run --web-port=5000
+    ```
 
 ### **Version Control and Tagging**
 

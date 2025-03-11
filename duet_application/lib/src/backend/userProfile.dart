@@ -10,9 +10,13 @@
 */
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
 import 'spotifyUserData.dart';
 import 'firestore_instance.dart';
+import 'authentication_instance.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 // Create an instance of the Uuid class
 var _uuidGen = Uuid();
@@ -23,11 +27,13 @@ var _uuidGen = Uuid();
 // Rankings can be dynamically updated via the `rankUser` method.
 class UserProfileData {
   final String _uuid; // Private unique user ID
-  String name, email, dob, location, bio, password;
+  late String _authId;
+  String name, email, dob, location, bio;
   SpotifyUserData? spotifyData;
   String? imageUrl;
   List<String> likedUsers; // Stores liked users with user UUIDs
   List<String> dislikedUsers; // Stores liked users with user UUIDs
+  late String _passwordHash; //  Securely store password hash
 
   UserProfileData({
     uuid,
@@ -35,15 +41,19 @@ class UserProfileData {
     required this.email,
     required this.dob,
     required this.location,
-    required this.password,
+    required String password,
     this.spotifyData,
     this.imageUrl,
     this.bio = "",
     List<String>? likedUsers,
     List<String>? dislikedUsers,
+    String? authId,
   })  : _uuid = uuid ?? _uuidGen.v4(),
         likedUsers = likedUsers ?? [],
-        dislikedUsers = dislikedUsers ?? [];
+        _authId = authId ?? '',
+        dislikedUsers = dislikedUsers ?? [], 
+        _passwordHash = _hashPassword(password); // Assign password inside constructor body
+  
 
   // Convert to Firestore format
   Map<String, dynamic> toMap() {
@@ -52,12 +62,13 @@ class UserProfileData {
       'name': name,
       'email': email,
       'dob': dob,
-      'password': password,
+      'passwordHash': _passwordHash, // Store only hashed password
       'location': location,
       'imageUrl': imageUrl,
       'bio': bio,
       'likedUsers': likedUsers,
       'dislikedUsers': dislikedUsers,
+      'authid': authId
     };
   }
 
@@ -68,23 +79,44 @@ class UserProfileData {
       name: data['name'] ?? '',
       email: data['email'] ?? '',
       dob: data['dob'] ?? '',
-      password: data['password'] ?? '',
+      password: '', // password: data['password'] ?? '',
       location: data['location'] ?? '',
       imageUrl: data['imageUrl'] ?? '',
       bio: data['bio'] ?? '',
+      authId: data['authid'] ?? '',
       likedUsers: List<String>.from(data['likedUsers'] ?? []),
       dislikedUsers: List<String>.from(data['dislikedUsers'] ?? []),
-    );
+    ).._passwordHash = data['passwordHash']; // 🔒 Assign password hash
   }
+
+   // Hash password using SHA-256
+  static String _hashPassword(String password) {
+    return sha256.convert(utf8.encode(password)).toString();
+  }
+
+  // Verify password
+  bool verifyPassword(String password) {
+    return _passwordHash == _hashPassword(password);
+  }
+
   // Getter for _uuid (to allow read access)
   String get uuid => _uuid;
+  String get authId => _authId;
 
   // Save user profile data to Firestore
   Future<void> saveToFirestore() async {
-    await firestoreInstance!.instance
+    try{
+      await authenticationInstance!.instance.createUserWithEmailAndPassword(email: email, password: _passwordHash);
+      await authenticationInstance!.instance.signInWithEmailAndPassword(email: email, password: _passwordHash);
+      _authId = authenticationInstance!.instance.currentUser!.uid;
+      await firestoreInstance!.instance
         .collection('users')
-        .doc(uuid)
-        .set(toMap()); // creates users collection
+        .doc(authId)
+        .set(toMap()); // creates users collection in Firestore
+    } catch (e) {
+      // ignore: avoid_print
+      print(e);
+    }
   }
 
   // Method to link Spotify profile
@@ -132,7 +164,7 @@ class UserProfileData {
   Future<void> swipeUser(String otherUuid, bool isLiked) async {
     final userRef = firestoreInstance!.instance
         .collection('users')
-        .doc(uuid); // fetch data from Firestore users collection
+        .doc(authId); // fetch data from Firestore users collection
 
     // Transaction is for updating data in Firebase directly rather than updating on local class
     await firestoreInstance!.instance.runTransaction((transaction) async {
@@ -170,7 +202,7 @@ class UserProfileData {
   // For UI
   Future<int> updateBio(String newBio) async {
     try {
-      final userRef = firestoreInstance!.instance.collection('users').doc(uuid);
+      final userRef = firestoreInstance!.instance.collection('users').doc(authId);
 
       // Update the bio directly in Firestore without a transaction
       await userRef.update({
@@ -188,7 +220,7 @@ class UserProfileData {
   // For UI
   Future<int> updateProfile(String newName, String newEmail, String newDob, String newLocation) async {
     try {
-      final userRef = firestoreInstance!.instance.collection('users').doc(uuid);
+      final userRef = firestoreInstance!.instance.collection('users').doc(authId);
 
       // Update profile details directly in Firestore without a transaction
       await userRef.update({
@@ -221,14 +253,15 @@ class UserProfileData {
       });
     });
   }
-}
 
-// Method to get user profile based on email and password
-Future<UserProfileData?> getUserProfileByEmailAndPassword(dynamic email, dynamic password) async {
+  // Method to get user profile based on email and password
+static Future<UserProfileData?> getUserProfileByEmailAndPassword(String email, String password) async {
+  String hashedPassword = _hashPassword(password);
+  authenticationInstance!.instance.signInWithEmailAndPassword(email: email, password: hashedPassword);
   final userQuery = await firestoreInstance!.instance
       .collection('users')
       .where('email', isEqualTo: email)
-      .where('password', isEqualTo: password)
+      .where('passwordHash', isEqualTo: hashedPassword)
       .limit(1)
       .get();
   if (userQuery.docs.isNotEmpty) {
@@ -236,3 +269,6 @@ Future<UserProfileData?> getUserProfileByEmailAndPassword(dynamic email, dynamic
   }
   return null;
 }
+}
+
+

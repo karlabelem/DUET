@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:duet_application/src/backend/authentication_instance.dart';
 import 'package:duet_application/src/backend/firestore_instance.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -35,6 +36,7 @@ void main() async {
  }
 
  makeFirestoreInstance(instance: FirebaseFirestore.instance);
+ makeAuthenticationInstance(instance: FirebaseAuth.instance);
  
   runApp(MyApp(settingsController: settingsController));
 }

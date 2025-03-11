@@ -40,8 +40,8 @@ class _SwipeUserParentState extends State<SwipeUserParent> {
 
     // Filter out current user and already swiped users
     final filteredUsers = await Future.wait(usersSnapshot.docs.where((doc) {
-      final userId = doc.get('uuid');
-      return userId != widget.currentUser.uuid &&
+      final userId = doc.get('authid');
+      return userId != widget.currentUser.authId &&
           !widget.currentUser.likedUsers.contains(userId) &&
           !widget.currentUser.dislikedUsers.contains(userId);
     }).map((doc) async {
@@ -65,9 +65,9 @@ class _SwipeUserParentState extends State<SwipeUserParent> {
     // Create new conversation if both users liked each other
     if (isLiked) {
       final otherUser = await UserProfileData.getUserProfile(otherUuid);
-      if (otherUser!.likedUsers.contains(widget.currentUser.uuid)) {
+      if (otherUser!.likedUsers.contains(widget.currentUser.authId)) {
         final newConversation = Messagingbackend(
-          uuid1: widget.currentUser.uuid,
+          uuid1: widget.currentUser.authId,
           uuid2: otherUuid,
         );
         await newConversation.saveToFirestore();
