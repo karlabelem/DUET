@@ -25,8 +25,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   Future<Set<String>> _loadTopGenres() async {
-    SpotifyUserData? userData = await SpotifyUserData.fromFirestore(widget.userUuid);
-    return userData!.favoriteGenres ?? {};
+    SpotifyUserData? userData = await SpotifyUserData.fromFirestore(widget.user.uuid);
+    return userData!.favoriteGenres;
   }
 
   @override
