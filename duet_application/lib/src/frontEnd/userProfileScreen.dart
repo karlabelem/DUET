@@ -70,39 +70,24 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           ),
         ],
       ),
-      body: FutureBuilder<UserProfileData?>(
-        future: _userProfileFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(
-                color: Color(0xFF5C469C),
-              ),
-            );
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(child: Text('User profile not found.'));
-          } else {
-            final userProfile = snapshot.data!;
-            return Container(
+      body: Container(
               color: const Color(0xFFE6E6FA),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _buildProfileHeader(userProfile),
+                    _buildProfileHeader(widget.user),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           const SizedBox(height: 20),
-                          _buildAboutMeSection(userProfile),
+                          _buildAboutMeSection(widget.user),
                           const SizedBox(height: 20),
                           _buildMusicSection(),
                           const SizedBox(height: 20),
-                          _buildDetailsSection(userProfile),
+                          _buildDetailsSection(widget.user),
                           const SizedBox(height: 30),
                         ],
                       ),
