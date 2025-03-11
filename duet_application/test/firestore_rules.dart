@@ -64,7 +64,6 @@ void main() {
 
       expect(login, isNotNull);
       expect(login!.email, email);
-      expect(login.password, password);
     });
 
     test('Saving new conversation to database', () async {

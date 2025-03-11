@@ -33,9 +33,9 @@ List<UserProfileData> reranking(List<UserProfileData> users, UserProfileData cur
   // Let's start with raw intersection size, then normalize by the size of the current user's set
   users.sort((a, b) {
   // Handle null values safely
-  final Set<dynamic> aArtists = a.spotifyData?.favoriteArtists ?? {};
-  final Set<dynamic> bArtists = b.spotifyData?.favoriteArtists ?? {};
-  final Set<dynamic> currentUserArtists = currentUser.spotifyData?.favoriteArtists ?? {};
+  final Set<dynamic> aArtists = (a.spotifyData?.favoriteArtists ?? {}).toSet();
+  final Set<dynamic> bArtists = (b.spotifyData?.favoriteArtists ?? {}).toSet();
+  final Set<dynamic> currentUserArtists = (currentUser.spotifyData?.favoriteArtists ?? {}).toSet();
 
   // Avoid division by zero: If currentUserArtists is empty, return users as-is
   int currentUserArtistCount = currentUserArtists.length;
