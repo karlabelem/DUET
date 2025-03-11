@@ -33,159 +33,177 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF5C469C),
-        title: Text("User Profile"),
-        leading: IconButton(
-          icon: Icon(Icons.menu), // Three-line menu icon
-          onPressed: () {
-            // Show the dropdown menu when the icon is pressed
-            showMenu(
-              context: context,
-              position:
-                  RelativeRect.fromLTRB(0, 60, 0, 0), // Adjust position of menu
-              items: <PopupMenuEntry>[
-                PopupMenuItem<String>(
-                  value: 'HOME',
-                  child: Text('HOME'),
-                ),
-                PopupMenuItem<String>(
-                  value: 'PROFILE',
-                  child: Text('PROFILE'),
-                ),
-                PopupMenuItem<String>(
-                  value: 'SIGN OUT',
-                  child: Text('SIGN OUT'),
-                ),
-              ],
-            );
-          },
+        backgroundColor: const Color(0xFF5C469C),
+        title: const Text(
+          "Profile",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+          ),
         ),
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text("Log Out"),
+                  content: const Text("Are you sure you want to log out?"),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text("Cancel"),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        widget.logOut();
+                      },
+                      child: const Text("Log Out"),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
       ),
-      body:  Container(
-              color: const Color(0xFFE6E6FA), // Lilac background
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildProfileCard(widget.user), // Profile Card
-                  const SizedBox(width: 16),
-                  _buildAboutMeCard(
-                      widget.user), // About Me section next to Profile Card
-                  const SizedBox(width: 16),
-                  _buildTopGenresCard(), // Music section next to About Me section
-                  const SizedBox(width: 16),
-                ],
+      body: Container(
+              color: const Color(0xFFE6E6FA),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildProfileHeader(widget.user),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: 20),
+                          _buildAboutMeSection(widget.user),
+                          const SizedBox(height: 20),
+                          _buildMusicSection(),
+                          const SizedBox(height: 20),
+                          _buildDetailsSection(widget.user),
+                          const SizedBox(height: 30),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             )
     );
           }
         
 
-  Widget _buildProfileCard(UserProfileData userProfile) {
+  Widget _buildProfileHeader(UserProfileData userProfile) {
     return Container(
-      width: 300,
-      margin: const EdgeInsets.all(16.0),
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 6.0,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: 50,
-              backgroundColor: const Color(0xFF5C469C),
-              child: const Icon(Icons.person, size: 50, color: Colors.white),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              userProfile.name,
-              style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black),
-            ),
-            const SizedBox(height: 5),
-            _buildInfoRow("Name", userProfile.name),
-            _buildInfoRow("Email", userProfile.email),
-            _buildInfoRow("DOB", userProfile.dob),
-            _buildInfoRow("Location", userProfile.location),
-            const SizedBox(height: 15),
-            ElevatedButton(
-              onPressed: () async {
-                final updatedProfile = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        EditProfileScreen(userProfile: userProfile),
-                  ),
-                );
-
-                if (updatedProfile != null) {
-                  setState(() {
-                    userProfile.name = updatedProfile['name'];
-                    userProfile.email = updatedProfile['email'];
-                    userProfile.dob = updatedProfile['dob'];
-                    userProfile.location = updatedProfile['location'];
-                  });
-
-                  await userProfile.updateProfile(
-                    updatedProfile['name'],
-                    updatedProfile['email'],
-                    updatedProfile['dob'],
-                    updatedProfile['location'],
-                  );
-                }
-              },
-              child: const Text("Edit Profile"),
-            ),
-            const SizedBox(height: 15),
-            ElevatedButton(
-              onPressed: () {
-                widget.logOut();
-              },
-              child: const Text("Log Out"),
-            ),
-          ],
+      decoration: const BoxDecoration(
+        color: Color(0xFF5C469C),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(30),
+          bottomRight: Radius.circular(30),
         ),
       ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      padding: const EdgeInsets.only(bottom: 30.0, top: 20.0),
+      child: Column(
         children: [
-          Text(
-            "$label:",
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Colors.black87,
+          // Profile picture
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.white, width: 4),
+              borderRadius: BorderRadius.circular(75),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: CircleAvatar(
+              radius: 70,
+              backgroundColor: Colors.white,
+              child: const Icon(
+                Icons.person,
+                size: 80,
+                color: Color(0xFF5C469C),
+              ),
             ),
           ),
-          Expanded(
-            child: Text(
-              value,
-              textAlign: TextAlign.right,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.black,
+          const SizedBox(height: 16),
+          // Name
+          Text(
+            userProfile.name,
+            style: const TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 5),
+          // Location
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.location_on,
+                color: Colors.white70,
+                size: 18,
               ),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
+              const SizedBox(width: 4),
+              Text(
+                userProfile.location,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.white70,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          // Edit profile button
+          ElevatedButton.icon(
+            onPressed: () async {
+              final updatedProfile = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      EditProfileScreen(userProfile: userProfile),
+                ),
+              );
+
+              if (updatedProfile != null) {
+                setState(() {
+                  userProfile.name = updatedProfile['name'];
+                  userProfile.email = updatedProfile['email'];
+                  userProfile.dob = updatedProfile['dob'];
+                  userProfile.location = updatedProfile['location'];
+                });
+
+                await userProfile.updateProfile(
+                  updatedProfile['name'],
+                  updatedProfile['email'],
+                  updatedProfile['dob'],
+                  updatedProfile['location'],
+                );
+              }
+            },
+            icon: const Icon(Icons.edit),
+            label: const Text("Edit Profile",
+                style: TextStyle(
+                    color: Colors.black87, fontStyle: FontStyle.normal)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFF5C469C),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
             ),
           ),
         ],
@@ -193,55 +211,64 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _buildAboutMeCard(UserProfileData userProfile) {
-    return Container(
-      width: 300,
-      margin: const EdgeInsets.all(16.0),
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 6.0,
-            offset: Offset(0, 2),
-          ),
-        ],
+  Widget _buildAboutMeSection(UserProfileData userProfile) {
+    return Card(
+      color: Colors.white,
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("About Me",
-                style: TextStyle(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "About Me",
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black)),
-            const SizedBox(height: 10),
-            Text(userProfile.bio,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.black)),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () async {
-                final updatedAboutMe = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        EditAboutMeScreen(bio: userProfile.bio),
+                    color: Color(0xFF5C469C),
                   ),
-                );
-                if (updatedAboutMe != null) {
-                  setState(() {
-                    userProfile.bio = updatedAboutMe;
-                  });
-                  await userProfile.updateBio(updatedAboutMe);
-                }
-              },
-              child: const Text("Edit",
-                  style: TextStyle(fontSize: 16), textAlign: TextAlign.center),
+                ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.edit,
+                    color: Color(0xFF5C469C),
+                  ),
+                  onPressed: () async {
+                    final updatedAboutMe = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            EditAboutMeScreen(bio: userProfile.bio),
+                      ),
+                    );
+                    if (updatedAboutMe != null) {
+                      setState(() {
+                        userProfile.bio = updatedAboutMe;
+                      });
+                      await userProfile.updateBio(updatedAboutMe);
+                    }
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              userProfile.bio.isEmpty
+                  ? "Tell potential matches about yourself..."
+                  : userProfile.bio,
+              style: TextStyle(
+                fontSize: 16,
+                color: userProfile.bio.isEmpty ? Colors.grey : Colors.black87,
+                fontStyle: userProfile.bio.isEmpty
+                    ? FontStyle.italic
+                    : FontStyle.normal,
+              ),
             ),
           ],
         ),
@@ -249,60 +276,143 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _buildTopGenresCard() {
+  Widget _buildMusicSection() {
     return FutureBuilder<Set<String>>(
       future: _favoriteGenresFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Color(0xFF5C469C),
+            ),
+          );
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('No top genres available.'));
         } else {
-          final favoriteGenres = snapshot.data!;
-          return Container(
-            width: 300,
-            margin: const EdgeInsets.all(16.0),
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 6.0,
-                  offset: Offset(0, 2),
-                ),
-              ],
+          final favoriteGenres = snapshot.data ?? {};
+          return Card(
+            color: Colors.white,
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(20.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Top Genres",
-                    style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
+                  Row(
+                    children: const [
+                      Icon(
+                        Icons.music_note,
+                        color: Color(0xFF5C469C),
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        "My Music Taste",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF5C469C),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 10),
-                  Column(
-                    children: favoriteGenres
-                        .take(5) // Ensure only top 5 genres are displayed
-                        .map((genre) => Text(genre,
-                            style: const TextStyle(
-                                fontSize: 16, color: Colors.black)))
-                        .toList(),
-                  ),
+                  const SizedBox(height: 16),
+                  favoriteGenres.isEmpty
+                      ? const Text(
+                          "Connect your Spotify to show your music taste!",
+                          style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            color: Colors.grey,
+                          ),
+                        )
+                      : Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: favoriteGenres
+                              .take(5)
+                              .map(
+                                (genre) => Chip(
+                                  label: Text(
+                                    genre,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  backgroundColor: const Color(0xFF5C469C),
+                                ),
+                              )
+                              .toList(),
+                        ),
                 ],
               ),
             ),
           );
         }
       },
+    );
+  }
+
+  Widget _buildDetailsSection(UserProfileData userProfile) {
+    return Card(
+      color: Colors.white,
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Details",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF5C469C),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildDetailRow(Icons.cake, "Birthday", userProfile.dob),
+            const SizedBox(height: 12),
+            _buildDetailRow(Icons.email, "Email", userProfile.email),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          color: const Color(0xFF5C469C),
+          size: 20,
+        ),
+        const SizedBox(width: 12),
+        Text(
+          "$label:",
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.black54,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -318,36 +428,113 @@ class EditAboutMeScreen extends StatefulWidget {
 
 class _EditAboutMeScreenState extends State<EditAboutMeScreen> {
   final TextEditingController _controller = TextEditingController();
+  bool _isChanged = false;
+  int maxChars = 300;
 
   @override
   void initState() {
     super.initState();
     _controller.text = widget.bio; // Set initial value
+    _controller.addListener(() {
+      setState(() {
+        _isChanged = _controller.text != widget.bio;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Edit About Me")),
+      appBar: AppBar(
+        title: const Text("About Me"),
+        backgroundColor: const Color(0xFF5C469C),
+      ),
+      backgroundColor: const Color(0xFFE6E6FA),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
-              controller: _controller,
-              maxLines: 5,
-              decoration: const InputDecoration(
-                labelText: "Write something about yourself...",
-                border: OutlineInputBorder(),
+            const Text(
+              "Tell potential matches about yourself",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF5C469C),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 4),
+            Text(
+                "What artists are you passionate about? What makes your music taste unique? What's a song you can't live without?",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black87,
+                  fontStyle: FontStyle.normal,
+                )),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _controller,
+              maxLines: 8,
+              maxLength: maxChars,
+              decoration: InputDecoration(
+                hintText: "Write something about yourself...",
+                hintStyle: TextStyle(
+                  fontStyle: FontStyle.normal,
+                  color: Colors.black54,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(
+                    color: Colors.black,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(
+                    color: Colors.black,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF5C469C),
+                    width: 2,
+                  ),
+                ),
+                counterStyle: TextStyle(color: Colors.black),
+              ),
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 13),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _isChanged ? Colors.purple : Colors.grey,
+                padding: const EdgeInsets.symmetric(vertical: 13),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
               onPressed: () {
                 Navigator.pop(context, _controller.text);
               },
-              child: const Text("Save"),
-            )
+              child: const Text(
+                "Save",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -383,34 +570,138 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Edit Profile")),
+      appBar: AppBar(
+        title: const Text("Edit Profile"),
+        backgroundColor: const Color(0xFF5C469C),
+      ),
+      backgroundColor: const Color(0xFFE6E6FA),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const Text(
+              "Name",
+              style: TextStyle(
+                color: Color(0xFF5C469C),
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 4),
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(
-                  labelText: "Name", border: OutlineInputBorder()),
+                prefixIcon: Icon(Icons.person, color: Color(0xFF5C469C)),
+                fillColor: Colors.white,
+                filled: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide(color: Color(0xFF5C469C), width: 2),
+                ),
+              ),
+              style: const TextStyle(color: Colors.black),
             ),
             const SizedBox(height: 10),
+            const Text(
+              "Email",
+              style: TextStyle(
+                color: Color(0xFF5C469C),
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 4),
             TextField(
               controller: _emailController,
               decoration: const InputDecoration(
-                  labelText: "Email", border: OutlineInputBorder()),
+                prefixIcon: Icon(Icons.email, color: Color(0xFF5C469C)),
+                fillColor: Colors.white,
+                filled: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide(color: Color(0xFF5C469C), width: 2),
+                ),
+              ),
+              style: const TextStyle(color: Colors.black),
             ),
             const SizedBox(height: 10),
+            const Text(
+              "DOB",
+              style: TextStyle(
+                color: Color(0xFF5C469C),
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 4),
             TextField(
               controller: _dobController,
               decoration: const InputDecoration(
-                  labelText: "DOB", border: OutlineInputBorder()),
+                prefixIcon: Icon(Icons.cake, color: Color(0xFF5C469C)),
+                fillColor: Colors.white,
+                filled: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide(color: Color(0xFF5C469C), width: 2),
+                ),
+              ),
+              style: const TextStyle(color: Colors.black),
             ),
             const SizedBox(height: 10),
+            const Text(
+              "Location",
+              style: TextStyle(
+                color: Color(0xFF5C469C),
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 4),
             TextField(
               controller: _locationController,
               decoration: const InputDecoration(
-                  labelText: "Location", border: OutlineInputBorder()),
+                prefixIcon: Icon(Icons.location_on, color: Color(0xFF5C469C)),
+                fillColor: Colors.white,
+                filled: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide(color: Color(0xFF5C469C), width: 2),
+                ),
+              ),
+              style: const TextStyle(color: Colors.black),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -422,7 +713,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   'location': _locationController.text,
                 });
               },
-              child: const Text("Save"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF5C469C),
+                padding: const EdgeInsets.symmetric(vertical: 13),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                "Save",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         ),
