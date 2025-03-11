@@ -69,11 +69,33 @@ This project aims to connect people through shared musical interests, creating f
    To run the app on your desired platform (iOS/Android), execute the following command:
    ```bash
    flutter run
+    ```
+3.1. **Clean and rerun**
+    You may need to run the following segment if you downloaded other pub.yaml contents, such as for testing another team's beta++:
+    
+    ```
+    flutter clean
+    flutter pub get
+    flutter upgrade
+    ```
+
+3.2. **webport**
+    Add the webport
+    
+    ```
+    flutter run --web-port=5000
+    ```
 
 ### **Version Control and Tagging**
 
-To mark this release, we have created a Git tag for the Beta Release:
-
+To mark the Beta release, we have created a Git tag:
 ```bash
 git tag -a v1.0.0-beta -m "Beta release of DUET"
 commit 9d0f1a99f03662c9b9e12878c3a7330b9ae95126 (HEAD, tag: v1.0.0-beta, origin/main, origin/HEAD, main)
+```
+
+To mark the Beta++ release, we have created a Git tag:
+```bash
+git tag -a v1.1.0-beta++ -m "Beta++ release of DUET"
+commit 0b63775e45f490940e8cf1a8d9f13dcbe9348d94 (HEAD -> main, tag: v1.1.0-beta++, origin/main, origin/HEAD)
+```

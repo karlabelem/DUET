@@ -66,7 +66,7 @@ class DmListBackend {
           UserProfileData? profile1 = await UserProfileData.getUserProfile(profiles[0]);
           UserProfileData? profile2 = await UserProfileData.getUserProfile(profiles[1]);
           if (profile1 != null && profile2 != null) {
-            userNames.add({profile1.uuid: profile1.name, profile2.uuid: profile2.name});
+            userNames.add({profile1.authId: profile1.name, profile2.authId: profile2.name});
           }
         }
       }
