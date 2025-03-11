@@ -202,7 +202,7 @@ class UserProfileData {
   // For UI
   Future<int> updateBio(String newBio) async {
     try {
-      final userRef = firestoreInstance!.instance.collection('users').doc(uuid);
+      final userRef = firestoreInstance!.instance.collection('users').doc(authId);
 
       // Update the bio directly in Firestore without a transaction
       await userRef.update({
@@ -220,7 +220,7 @@ class UserProfileData {
   // For UI
   Future<int> updateProfile(String newName, String newEmail, String newDob, String newLocation) async {
     try {
-      final userRef = firestoreInstance!.instance.collection('users').doc(uuid);
+      final userRef = firestoreInstance!.instance.collection('users').doc(authId);
 
       // Update profile details directly in Firestore without a transaction
       await userRef.update({
