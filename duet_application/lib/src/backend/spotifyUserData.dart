@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-// import 'dart:html' as html; // Use dart:html for redirection on web
+import 'dart:html' as html; // Use dart:html for redirection on web
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:duet_application/src/backend/firestore_instance.dart';

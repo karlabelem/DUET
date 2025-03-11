@@ -85,11 +85,12 @@ void main() {
     UserProfileData currentUser = user1;
     List<UserProfileData> other_users = [user2, user3];
 
-    final List<UserProfileData> matches = matchUsers(currentUser, other_users);
+    final matches = matchUsers(other_users, currentUser);
 
     // Expect the matches to be user3, then user2
-    expect(matches[0]['user'].uuid, '3');
-    expect(matches[1]['user'].uuid, '2');
+    expect(matches[0].uuid, equals('3'));
+    expect(matches[1].uuid, equals('2'));
+
 
     // final instance = FakeFirebaseFirestore();
 
