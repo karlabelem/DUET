@@ -4,7 +4,6 @@ import 'package:duet_application/src/frontEnd/profile_creation/profile_creation_
 import 'package:duet_application/src/frontEnd/profile_creation/profile_creation_s1.dart';
 import 'package:duet_application/src/frontEnd/profile_creation/profile_creation_s2.dart';
 import 'package:duet_application/src/frontEnd/profile_creation/profile_creation_s3.dart';
-import 'package:duet_application/src/frontEnd/profile_creation/profile_creation_s4.dart';
 import 'package:duet_application/src/frontEnd/profile_creation/user_registration_data.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -78,8 +77,6 @@ class ProfileCreationParentState extends State<ProfileCreationParent> {
         return ProfileCreationStep2(nextStep: nextStep);
       case 3:
         return ProfileCreationStep3(nextStep: nextStep);
-      case 4:
-        return ProfileCreationStep4(nextStep: nextStep);
       default:
         return Scaffold();
     }

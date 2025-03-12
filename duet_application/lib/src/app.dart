@@ -123,7 +123,7 @@ class _MyAppState extends State<MyApp> {
                 if (loggedInUser == null) {
                   switch (appState) {
                     case AppState.profileCreation:
-                      return ProfileCreationParent(nextStep: openLoginScreen);
+                      return ProfileCreationParent(openLogin: openLoginScreen);
                     case AppState.login:
                       return LoginScreen(
                           onRegister: openProfileCreationScreen,
