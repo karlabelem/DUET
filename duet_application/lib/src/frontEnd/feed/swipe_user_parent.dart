@@ -49,8 +49,7 @@ class _SwipeUserParentState extends State<SwipeUserParent> {
       return userData;
     }));
 
-    // Run dummy matching algorithm
-    final filteredUsersSubset = dummyMatching(filteredUsers, widget.currentUser);
+    final filteredUsersSubset = matchUsers(filteredUsers, widget.currentUser);
 
     setState(() {
       potentialMatches = filteredUsersSubset;
