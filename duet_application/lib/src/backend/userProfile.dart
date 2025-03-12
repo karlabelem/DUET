@@ -87,7 +87,7 @@ class UserProfileData {
       authId: data['authid'] ?? '',
       likedUsers: List<String>.from(data['likedUsers'] ?? []),
       dislikedUsers: List<String>.from(data['dislikedUsers'] ?? []),
-      spotifyData: (data['spotifyData'] != null) ? SpotifyUserData.fromMap(data['spotifyData']) : null
+      spotifyData: data['spotifyData'] is Map<String, dynamic> ? SpotifyUserData.fromMap(data['spotifyData']) : null
     ).._passwordHash = data['passwordHash']; // 🔒 Assign password hash
   }
 
