@@ -10,9 +10,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class ProfileCreationParent extends StatefulWidget {
-  const ProfileCreationParent({super.key, required this.nextStep});
+  const ProfileCreationParent({super.key, required this.openLogin});
 
-  final Function nextStep;
+  final Function openLogin;
 
   @override
   State<ProfileCreationParent> createState() => ProfileCreationParentState();
@@ -39,17 +39,15 @@ class ProfileCreationParentState extends State<ProfileCreationParent> {
           break;
         case 3:
           userRegistrationData.location = data['location'] ?? '';
-          break;
-        case 4:
-          _createUserProfile(data);
-          widget.nextStep();
+          _createUserProfile();
+          widget.openLogin();
           break;
       }
       step = step + 1;
     });
   }
 
-  Future<void> _createUserProfile(Map<String, dynamic> data) async {
+  Future<void> _createUserProfile() async {
     try {
       final userProfile = UserProfileData(
         name:
@@ -62,23 +60,11 @@ class ProfileCreationParentState extends State<ProfileCreationParent> {
       );
 
       await userProfile.saveToFirestore();
-      uuid = userProfile.uuid;
-      await _createSpotifyUserData(data);
     } catch (e) {
       if (kDebugMode) {
         print('Error creating user profile: $e');
       }
     }
-  }
-
-  Future<void> _createSpotifyUserData(Map<String, dynamic> data) async {
-    final Set<String> favoriteGenres = (data['genres'] as Set<dynamic>).cast<String>();
-    final spotifyUserData = SpotifyUserData(
-      uuid: uuid,
-      email: userRegistrationData.email,
-      favoriteGenres: favoriteGenres,
-    );
-    spotifyUserData.save();
   }
 
   @override

@@ -88,7 +88,7 @@ class _ProfileCreationStep3State extends State<ProfileCreationStep3> {
                   }
                 },
                 child: Text(
-                  "Next",
+                  "Register",
                   style: TextStyle(color: Colors.white),
                 ),
               ),
