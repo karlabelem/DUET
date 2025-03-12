@@ -76,31 +76,56 @@ class _SwipeUserScreenState extends State<SwipeUserScreen> {
                     ),
                     const SizedBox(height: 10),
                     Text(
+                      widget.userProfile.location,
+                      style: const TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                    Text(
+                      'Bio:',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                    Text(
                       widget.userProfile.bio,
                       textAlign: TextAlign.center,
                       style: const TextStyle(fontSize: 16, color: Colors.white),
                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      widget.userProfile.location,
-                      style: const TextStyle(fontSize: 16, color: Colors.white),
-                    ),
+                    
                     const SizedBox(height: 20),
                     Text(
-                      'Favorite Genres:',
+                      'Favorite Tracks:',
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                     ),
                     const SizedBox(height: 10),
                     Column(
-                      children: (widget.spotifyUserData.favoriteGenres ?? {}).map((genre) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: Chip(
-                            label: Text(genre, style: const TextStyle(color: Colors.white)),
-                            backgroundColor: Color(0xFF5C469C),
-                          ),
-                        );
-                      }).toList(),
+                      children: [...widget.spotifyUserData.favoriteTracks.take(5).map((item) {
+          // Each item is expected to have a 'track' key.
+          var track = item['track'];
+          String trackName = track['name'] ?? 'Unknown';
+          String artists = "";
+          if (track['artists'] != null) {
+        artists = (track['artists'] as List)
+            .map((artist) => artist['name'])
+            .join(", ");
+          }
+          String albumImageUrl = "";
+          if (track['album'] != null &&
+          track['album']['images'] != null &&
+          track['album']['images'] is List &&
+          track['album']['images'].isNotEmpty) {
+        albumImageUrl = track['album']['images'][0]['url'] ?? "";
+          }
+          return Material(
+        color: Color(0xFF5C469C),
+        child: ListTile(
+          leading: albumImageUrl.isNotEmpty
+          ? Image.network(albumImageUrl,
+              width: 25, height: 25, fit: BoxFit.cover)
+          : SizedBox(width: 25, height: 25),
+          title: Text(trackName, style: TextStyle(color: Colors.white)),
+          subtitle: Text(artists, style: TextStyle(color: Colors.white)),
+        ),
+          );
+        }).toList(),]
                     ),
                   ],
                 ),
