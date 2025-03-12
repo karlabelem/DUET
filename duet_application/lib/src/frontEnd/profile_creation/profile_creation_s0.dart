@@ -12,6 +12,8 @@ class _AccountRegistrationState extends State<AccountRegistration> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  final emailFocusNode = FocusNode();
+  String emailError = '';
 
   @override
   Widget build(BuildContext context) {
@@ -49,20 +51,31 @@ class _AccountRegistrationState extends State<AccountRegistration> {
               const SizedBox(height: 16.0),
               TextField(
                 decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide(
+                      color: emailError.isEmpty ? Colors.grey : Colors.red,
                     ),
-                    hintText: "Email"),
+                  ),
+                  hintText: "Email",
+                  errorText: emailError.isEmpty ? null : emailError,
+                ),
                 controller: emailController,
+                focusNode: emailFocusNode,
+                onChanged: (value) => setState(() {
+                  emailError =
+                      isValidEmail(value) ? '' : 'Invalid email address';
+                }),
                 style: TextStyle(color: Colors.black),
               ),
               const SizedBox(height: 16.0),
               TextField(
                 decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    hintText: "Password"),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  hintText: "Password",
+                ),
                 controller: passwordController,
                 obscureText: true,
                 onChanged: (value) => setState(() {}),
@@ -71,10 +84,11 @@ class _AccountRegistrationState extends State<AccountRegistration> {
               const SizedBox(height: 16.0),
               TextField(
                 decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    hintText: "Confirm Password"),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  hintText: "Confirm Password",
+                ),
                 controller: confirmPasswordController,
                 obscureText: true,
                 onChanged: (value) => setState(() {}),
@@ -83,15 +97,14 @@ class _AccountRegistrationState extends State<AccountRegistration> {
               const SizedBox(height: 24.0),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      isValidPassword() ? Colors.purple : Colors.grey,
+                  backgroundColor: isValidForm() ? Colors.purple : Colors.grey,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24.0),
                   ),
                   minimumSize: Size(double.infinity, 48.0),
                 ),
                 onPressed: () {
-                  if (isValidPassword()) {
+                  if (isValidForm()) {
                     widget.nextStep(
                       {
                         'email': emailController.text,
@@ -99,11 +112,19 @@ class _AccountRegistrationState extends State<AccountRegistration> {
                       },
                     );
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Passwords do not match'),
-                      ),
-                    );
+                    if (!isValidEmail(emailController.text)) {
+                      setState(() {
+                        emailError = 'Invalid email address';
+                      });
+                      emailFocusNode.requestFocus();
+                    } else if (passwordController.text !=
+                        confirmPasswordController.text) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Passwords do not match'),
+                        ),
+                      );
+                    }
                   }
                 },
                 child: Text(
@@ -118,9 +139,16 @@ class _AccountRegistrationState extends State<AccountRegistration> {
     );
   }
 
-  bool isValidPassword() {
-    return passwordController.text.isNotEmpty &&
+  bool isValidForm() {
+    return isValidEmail(emailController.text) &&
+        passwordController.text.isNotEmpty &&
         confirmPasswordController.text.isNotEmpty &&
         passwordController.text == confirmPasswordController.text;
+  }
+
+  bool isValidEmail(String email) {
+    final emailRegex = RegExp(
+        r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?");
+    return emailRegex.hasMatch(email);
   }
 }
