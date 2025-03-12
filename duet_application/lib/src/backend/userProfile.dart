@@ -68,7 +68,8 @@ class UserProfileData {
       'bio': bio,
       'likedUsers': likedUsers,
       'dislikedUsers': dislikedUsers,
-      'authid': authId
+      'authid': authId,
+      'spotifyData': (spotifyData != null) ? spotifyData!.toMap() : '',
     };
   }
 
@@ -86,6 +87,7 @@ class UserProfileData {
       authId: data['authid'] ?? '',
       likedUsers: List<String>.from(data['likedUsers'] ?? []),
       dislikedUsers: List<String>.from(data['dislikedUsers'] ?? []),
+      spotifyData: (data['spotifyData'] != null) ? SpotifyUserData.fromMap(data['spotifyData']) : null
     ).._passwordHash = data['passwordHash']; // 🔒 Assign password hash
   }
 
@@ -105,7 +107,7 @@ class UserProfileData {
 
   // Save user profile data to Firestore
   Future<void> saveToFirestore() async {
-    try{
+    try{      
       await authenticationInstance!.instance.createUserWithEmailAndPassword(email: email, password: _passwordHash);
       await authenticationInstance!.instance.signInWithEmailAndPassword(email: email, password: _passwordHash);
       _authId = authenticationInstance!.instance.currentUser!.uid;
@@ -122,6 +124,7 @@ class UserProfileData {
   // Method to link Spotify profile
   Future<void> linkSpotifyProfile() async {
     spotifyData = await SpotifyUserData.createSpotifyProfile(uuid);
+    await firestoreInstance!.instance.collection('users').doc(authId).update({'spotifyData': spotifyData!.toMap()});
   }
 
   // Fetch or update Spotify data
@@ -131,6 +134,7 @@ class UserProfileData {
     } else {
       await linkSpotifyProfile();
     }
+    await firestoreInstance!.instance.collection('users').doc(authId).update({'spotifyData': spotifyData!.toMap()});
   }
 
   // Method to get Spotify User Data

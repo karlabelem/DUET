@@ -18,6 +18,16 @@ enum MusicGenre {
   Reggae,
   Blues,
   Metal,
+  RnB,
+  Soul,
+  Funk,
+  Disco,
+  Punk,
+  Folk,
+  Indie,
+  Latin,
+  Gospel,
+  Ska
 }
 
 
@@ -54,6 +64,7 @@ class SpotifyUserData {
   /// Creates a new Spotify profile by performing authentication and saving the user profile.
   static Future<SpotifyUserData> createSpotifyProfile(String uuid) async {
     final user = await connectWithSpotify(uuid);
+    await user.updateSpotifyData();
     await user.save();
     return user;
   }
@@ -130,7 +141,7 @@ class SpotifyUserData {
     final response =
         await _spotifyRequest('$_spotifyApiUrl/me/tracks?limit=$limit');
     favoriteTracks = response['items'] != null ? List<dynamic>.from(response['items']) : [];
-    return favoriteTracks ?? [];
+    return favoriteTracks;
   }
 
   /// Makes an authenticated request to the Spotify API.

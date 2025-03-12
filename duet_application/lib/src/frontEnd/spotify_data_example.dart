@@ -1,9 +1,5 @@
-
-
-
 import 'package:duet_application/src/backend/spotifyUserData.dart';
 import 'package:flutter/material.dart';
-
 
 class SpotifyAuthWidget extends StatefulWidget {
   final String uuid;
@@ -76,7 +72,7 @@ class _SpotifyAuthWidgetState extends State<SpotifyAuthWidget> {
   /// Builds a section to display the user's top artists.
   Widget _buildTopArtists() {
     if (_spotifyUserData?.favoriteArtists == null ||
-        _spotifyUserData!.favoriteArtists!.isEmpty) {
+        _spotifyUserData!.favoriteArtists.isEmpty) {
       return Text("No top artists available. Try refreshing.");
     }
     return Column(
@@ -86,7 +82,7 @@ class _SpotifyAuthWidgetState extends State<SpotifyAuthWidget> {
           "Top Artists",
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        ..._spotifyUserData!.favoriteArtists!.map((artist) {
+        ..._spotifyUserData!.favoriteArtists.map((artist) {
           String name = artist['name'] ?? 'Unknown';
           String imageUrl = "";
           if (artist['images'] != null &&
@@ -94,12 +90,14 @@ class _SpotifyAuthWidgetState extends State<SpotifyAuthWidget> {
               artist['images'].isNotEmpty) {
             imageUrl = artist['images'][0]['url'] ?? "";
           }
-          return ListTile(
-            leading: imageUrl.isNotEmpty
-                ? Image.network(imageUrl,
-                    width: 50, height: 50, fit: BoxFit.cover)
-                : SizedBox(width: 50, height: 50),
-            title: Text(name),
+          return Material(
+            child: ListTile(
+              leading: imageUrl.isNotEmpty
+                  ? Image.network(imageUrl,
+                      width: 50, height: 50, fit: BoxFit.cover)
+                  : SizedBox(width: 50, height: 50),
+              title: Text(name),
+            ),
           );
         }).toList(),
       ],
@@ -109,7 +107,7 @@ class _SpotifyAuthWidgetState extends State<SpotifyAuthWidget> {
   /// Builds a section to display the user's saved tracks.
   Widget _buildSavedTracks() {
     if (_spotifyUserData?.favoriteTracks == null ||
-        _spotifyUserData!.favoriteTracks!.isEmpty) {
+        _spotifyUserData!.favoriteTracks.isEmpty) {
       return Text("No saved tracks available. Try refreshing.");
     }
     return Column(
@@ -119,7 +117,7 @@ class _SpotifyAuthWidgetState extends State<SpotifyAuthWidget> {
           "Saved Tracks",
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        ..._spotifyUserData!.favoriteTracks!.map((item) {
+        ..._spotifyUserData!.favoriteTracks.map((item) {
           // Each item is expected to have a 'track' key.
           var track = item['track'];
           String trackName = track['name'] ?? 'Unknown';
@@ -136,13 +134,15 @@ class _SpotifyAuthWidgetState extends State<SpotifyAuthWidget> {
               track['album']['images'].isNotEmpty) {
             albumImageUrl = track['album']['images'][0]['url'] ?? "";
           }
-          return ListTile(
-            leading: albumImageUrl.isNotEmpty
-                ? Image.network(albumImageUrl,
-                    width: 50, height: 50, fit: BoxFit.cover)
-                : SizedBox(width: 50, height: 50),
-            title: Text(trackName),
-            subtitle: Text(artists),
+          return Material(
+            child: ListTile(
+              leading: albumImageUrl.isNotEmpty
+                  ? Image.network(albumImageUrl,
+                      width: 50, height: 50, fit: BoxFit.cover)
+                  : SizedBox(width: 50, height: 50),
+              title: Text(trackName),
+              subtitle: Text(artists),
+            ),
           );
         }).toList(),
       ],
