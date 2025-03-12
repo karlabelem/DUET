@@ -1,4 +1,3 @@
-import 'package:duet_application/src/backend/spotifyUserData.dart';
 import 'package:duet_application/src/backend/userProfile.dart';
 import 'package:duet_application/src/frontEnd/profile_creation/profile_creation_s0.dart';
 import 'package:duet_application/src/frontEnd/profile_creation/profile_creation_s1.dart';
