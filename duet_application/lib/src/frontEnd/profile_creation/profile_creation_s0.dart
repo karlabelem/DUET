@@ -12,6 +12,8 @@ class _AccountRegistrationState extends State<AccountRegistration> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  final emailFocusNode = FocusNode();
+  String emailError = '';
 
   @override
   Widget build(BuildContext context) {
@@ -49,21 +51,31 @@ class _AccountRegistrationState extends State<AccountRegistration> {
               const SizedBox(height: 16.0),
               TextField(
                 decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide(
+                      color: emailError.isEmpty ? Colors.grey : Colors.red,
                     ),
-                    hintText: "Email"),
+                  ),
+                  hintText: "Email",
+                  errorText: emailError.isEmpty ? null : emailError,
+                ),
                 controller: emailController,
-                onChanged: (value) => setState(() {}),
+                focusNode: emailFocusNode,
+                onChanged: (value) => setState(() {
+                  emailError =
+                      isValidEmail(value) ? '' : 'Invalid email address';
+                }),
                 style: TextStyle(color: Colors.black),
               ),
               const SizedBox(height: 16.0),
               TextField(
                 decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    hintText: "Password"),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  hintText: "Password",
+                ),
                 controller: passwordController,
                 obscureText: true,
                 onChanged: (value) => setState(() {}),
@@ -72,10 +84,11 @@ class _AccountRegistrationState extends State<AccountRegistration> {
               const SizedBox(height: 16.0),
               TextField(
                 decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    hintText: "Confirm Password"),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  hintText: "Confirm Password",
+                ),
                 controller: confirmPasswordController,
                 obscureText: true,
                 onChanged: (value) => setState(() {}),
@@ -100,11 +113,10 @@ class _AccountRegistrationState extends State<AccountRegistration> {
                     );
                   } else {
                     if (!isValidEmail(emailController.text)) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Invalid email address'),
-                        ),
-                      );
+                      setState(() {
+                        emailError = 'Invalid email address';
+                      });
+                      emailFocusNode.requestFocus();
                     } else if (passwordController.text !=
                         confirmPasswordController.text) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -135,7 +147,8 @@ class _AccountRegistrationState extends State<AccountRegistration> {
   }
 
   bool isValidEmail(String email) {
-    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+    final emailRegex = RegExp(
+        r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?");
     return emailRegex.hasMatch(email);
   }
 }
