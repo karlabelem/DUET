@@ -54,6 +54,7 @@ class _AccountRegistrationState extends State<AccountRegistration> {
                     ),
                     hintText: "Email"),
                 controller: emailController,
+                onChanged: (value) => setState(() {}),
                 style: TextStyle(color: Colors.black),
               ),
               const SizedBox(height: 16.0),
@@ -83,15 +84,14 @@ class _AccountRegistrationState extends State<AccountRegistration> {
               const SizedBox(height: 24.0),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      isValidPassword() ? Colors.purple : Colors.grey,
+                  backgroundColor: isValidForm() ? Colors.purple : Colors.grey,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24.0),
                   ),
                   minimumSize: Size(double.infinity, 48.0),
                 ),
                 onPressed: () {
-                  if (isValidPassword()) {
+                  if (isValidForm()) {
                     widget.nextStep(
                       {
                         'email': emailController.text,
@@ -99,11 +99,20 @@ class _AccountRegistrationState extends State<AccountRegistration> {
                       },
                     );
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Passwords do not match'),
-                      ),
-                    );
+                    if (!isValidEmail(emailController.text)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Invalid email address'),
+                        ),
+                      );
+                    } else if (passwordController.text !=
+                        confirmPasswordController.text) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Passwords do not match'),
+                        ),
+                      );
+                    }
                   }
                 },
                 child: Text(
@@ -118,9 +127,15 @@ class _AccountRegistrationState extends State<AccountRegistration> {
     );
   }
 
-  bool isValidPassword() {
-    return passwordController.text.isNotEmpty &&
+  bool isValidForm() {
+    return isValidEmail(emailController.text) &&
+        passwordController.text.isNotEmpty &&
         confirmPasswordController.text.isNotEmpty &&
         passwordController.text == confirmPasswordController.text;
+  }
+
+  bool isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+    return emailRegex.hasMatch(email);
   }
 }
