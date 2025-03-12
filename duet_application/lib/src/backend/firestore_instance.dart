@@ -6,7 +6,8 @@ class FirestoreInstance {
   final FirebaseFirestore _instance;
 
   /// Constructor that initializes the FirestoreInstance with a given FirebaseFirestore instance.
-  const FirestoreInstance({required FirebaseFirestore instance}) : _instance = instance;
+  const FirestoreInstance({required FirebaseFirestore instance})
+      : _instance = instance;
 
   /// Getter to access the FirebaseFirestore instance.
   FirebaseFirestore get instance => _instance;

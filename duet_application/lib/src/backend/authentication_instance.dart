@@ -7,7 +7,8 @@ class AuthenticationInstance {
   final FirebaseAuth _instance;
 
   /// Constructor that initializes the FirestoreInstance with a given FirebaseFirestore instance.
-  const AuthenticationInstance({required FirebaseAuth instance}) : _instance = instance;
+  const AuthenticationInstance({required FirebaseAuth instance})
+      : _instance = instance;
 
   /// Getter to access the FirebaseFirestore instance.
   FirebaseAuth get instance => _instance;

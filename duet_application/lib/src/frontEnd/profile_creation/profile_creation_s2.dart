@@ -176,7 +176,8 @@ class _ProfileCreationStep2State extends State<ProfileCreationStep2> {
                 onPressed: isValidDate()
                     ? () {
                         widget.nextStep({
-                          'dob': '${monthController.text}/${dayController.text}/${yearController.text}',
+                          'dob':
+                              '${monthController.text}/${dayController.text}/${yearController.text}',
                         });
                       }
                     : null,

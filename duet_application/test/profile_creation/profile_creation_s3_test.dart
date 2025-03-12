@@ -3,7 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:duet_application/src/frontEnd/profile_creation/profile_creation_s3.dart';
 
 void main() {
-  testWidgets('ProfileCreationStep3 renders correctly', (WidgetTester tester) async {
+  testWidgets('ProfileCreationStep3 renders correctly',
+      (WidgetTester tester) async {
     // Create a mock nextStep function
     bool nextStepCalled = false;
     Map<String, String>? passedData;
@@ -37,7 +38,8 @@ void main() {
     );
   });
 
-  testWidgets('Button enables when city is entered', (WidgetTester tester) async {
+  testWidgets('Button enables when city is entered',
+      (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
       home: ProfileCreationStep3(nextStep: (_) {}),
     ));
@@ -55,7 +57,8 @@ void main() {
     );
   });
 
-  testWidgets('Next step is called with correct data', (WidgetTester tester) async {
+  testWidgets('Next step is called with correct data',
+      (WidgetTester tester) async {
     Map<String, String>? passedData;
     void mockNextStep(Map<String, String> data) {
       passedData = data;
@@ -77,7 +80,8 @@ void main() {
     });
   });
 
-  testWidgets('Shows error message when submitting empty city', (WidgetTester tester) async {
+  testWidgets('Shows error message when submitting empty city',
+      (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
       home: ProfileCreationStep3(nextStep: (_) {}),
     ));
@@ -90,7 +94,8 @@ void main() {
     expect(find.text('Please enter a valid city'), findsOneWidget);
   });
 
-  testWidgets('TextField updates trigger state changes', (WidgetTester tester) async {
+  testWidgets('TextField updates trigger state changes',
+      (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
       home: ProfileCreationStep3(nextStep: (_) {}),
     ));

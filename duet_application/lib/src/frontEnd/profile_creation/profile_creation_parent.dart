@@ -1,18 +1,16 @@
-import 'package:duet_application/src/backend/spotifyUserData.dart';
 import 'package:duet_application/src/backend/userProfile.dart';
 import 'package:duet_application/src/frontEnd/profile_creation/profile_creation_s0.dart';
 import 'package:duet_application/src/frontEnd/profile_creation/profile_creation_s1.dart';
 import 'package:duet_application/src/frontEnd/profile_creation/profile_creation_s2.dart';
 import 'package:duet_application/src/frontEnd/profile_creation/profile_creation_s3.dart';
-import 'package:duet_application/src/frontEnd/profile_creation/profile_creation_s4.dart';
 import 'package:duet_application/src/frontEnd/profile_creation/user_registration_data.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class ProfileCreationParent extends StatefulWidget {
-  const ProfileCreationParent({super.key, required this.nextStep});
+  const ProfileCreationParent({super.key, required this.openLogin});
 
-  final Function nextStep;
+  final Function openLogin;
 
   @override
   State<ProfileCreationParent> createState() => ProfileCreationParentState();
@@ -20,7 +18,7 @@ class ProfileCreationParent extends StatefulWidget {
 
 class ProfileCreationParentState extends State<ProfileCreationParent> {
   final UserRegistrationData userRegistrationData = UserRegistrationData();
-  late String uuid = ''; 
+  late String uuid = '';
   int step = 0;
 
   void nextStep(Map<String, dynamic> data) {
@@ -39,17 +37,15 @@ class ProfileCreationParentState extends State<ProfileCreationParent> {
           break;
         case 3:
           userRegistrationData.location = data['location'] ?? '';
-          break;
-        case 4:
-          _createUserProfile(data);
-          widget.nextStep();
+          _createUserProfile();
+          widget.openLogin();
           break;
       }
       step = step + 1;
     });
   }
 
-  Future<void> _createUserProfile(Map<String, dynamic> data) async {
+  Future<void> _createUserProfile() async {
     try {
       final userProfile = UserProfileData(
         name:
@@ -62,23 +58,11 @@ class ProfileCreationParentState extends State<ProfileCreationParent> {
       );
 
       await userProfile.saveToFirestore();
-      uuid = userProfile.uuid;
-      await _createSpotifyUserData(data);
     } catch (e) {
       if (kDebugMode) {
         print('Error creating user profile: $e');
       }
     }
-  }
-
-  Future<void> _createSpotifyUserData(Map<String, dynamic> data) async {
-    final Set<String> favoriteGenres = (data['genres'] as Set<dynamic>).cast<String>();
-    final spotifyUserData = SpotifyUserData(
-      uuid: uuid,
-      email: userRegistrationData.email,
-      favoriteGenres: favoriteGenres,
-    );
-    spotifyUserData.save();
   }
 
   @override
@@ -92,8 +76,6 @@ class ProfileCreationParentState extends State<ProfileCreationParent> {
         return ProfileCreationStep2(nextStep: nextStep);
       case 3:
         return ProfileCreationStep3(nextStep: nextStep);
-      case 4:
-        return ProfileCreationStep4(nextStep: nextStep);
       default:
         return Scaffold();
     }
