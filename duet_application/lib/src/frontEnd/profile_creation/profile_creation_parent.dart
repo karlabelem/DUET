@@ -18,7 +18,7 @@ class ProfileCreationParent extends StatefulWidget {
 
 class ProfileCreationParentState extends State<ProfileCreationParent> {
   final UserRegistrationData userRegistrationData = UserRegistrationData();
-  late String uuid = ''; 
+  late String uuid = '';
   int step = 0;
 
   void nextStep(Map<String, dynamic> data) {

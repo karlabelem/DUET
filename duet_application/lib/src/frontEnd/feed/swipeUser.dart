@@ -8,7 +8,11 @@ class SwipeUserScreen extends StatefulWidget {
   final SpotifyUserData spotifyUserData;
   final Function(bool, String) swipeAction;
 
-  const SwipeUserScreen({super.key, required this.userProfile, required this.swipeAction, required this.spotifyUserData});
+  const SwipeUserScreen(
+      {super.key,
+      required this.userProfile,
+      required this.swipeAction,
+      required this.spotifyUserData});
 
   @override
   State<SwipeUserScreen> createState() => _SwipeUserScreenState();
@@ -31,7 +35,8 @@ class _SwipeUserScreenState extends State<SwipeUserScreen> {
                 child: IconButton(
                   icon: Icon(Icons.thumb_down, color: Colors.red, size: 50),
                   onPressed: () {
-                    widget.swipeAction(false, widget.userProfile.authId); // Swiped left (dislike)
+                    widget.swipeAction(false,
+                        widget.userProfile.authId); // Swiped left (dislike)
                   },
                 ),
               ),
@@ -48,7 +53,8 @@ class _SwipeUserScreenState extends State<SwipeUserScreen> {
                 child: IconButton(
                   icon: Icon(Icons.thumb_up, color: Colors.green, size: 50),
                   onPressed: () {
-                    widget.swipeAction(true, widget.userProfile.authId); // Swiped right (like)
+                    widget.swipeAction(
+                        true, widget.userProfile.authId); // Swiped right (like)
                   },
                 ),
               ),
@@ -67,12 +73,16 @@ class _SwipeUserScreenState extends State<SwipeUserScreen> {
                     CircleAvatar(
                       radius: 50,
                       backgroundColor: Colors.white,
-                      child: const Icon(Icons.person, size: 50, color: Color(0xFF5C469C)),
+                      child: const Icon(Icons.person,
+                          size: 50, color: Color(0xFF5C469C)),
                     ),
                     const SizedBox(height: 20),
                     Text(
                       widget.userProfile.name,
-                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+                      style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
                     ),
                     const SizedBox(height: 10),
                     Text(
@@ -81,7 +91,10 @@ class _SwipeUserScreenState extends State<SwipeUserScreen> {
                     ),
                     Text(
                       'Bio:',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                      style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
                     ),
                     Text(
                       widget.userProfile.bio,
@@ -89,44 +102,51 @@ class _SwipeUserScreenState extends State<SwipeUserScreen> {
                       style: const TextStyle(fontSize: 16, color: Colors.white),
                     ),
                     const SizedBox(height: 10),
-                    
                     const SizedBox(height: 20),
                     Text(
                       'Favorite Tracks:',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                      style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
                     ),
                     const SizedBox(height: 10),
-                    Column(
-                      children: [...widget.spotifyUserData.favoriteTracks.take(5).map((item) {
-          // Each item is expected to have a 'track' key.
-          var track = item['track'];
-          String trackName = track['name'] ?? 'Unknown';
-          String artists = "";
-          if (track['artists'] != null) {
-        artists = (track['artists'] as List)
-            .map((artist) => artist['name'])
-            .join(", ");
-          }
-          String albumImageUrl = "";
-          if (track['album'] != null &&
-          track['album']['images'] != null &&
-          track['album']['images'] is List &&
-          track['album']['images'].isNotEmpty) {
-        albumImageUrl = track['album']['images'][0]['url'] ?? "";
-          }
-          return Material(
-        color: Color(0xFF5C469C),
-        child: ListTile(
-          leading: albumImageUrl.isNotEmpty
-          ? Image.network(albumImageUrl,
-              width: 25, height: 25, fit: BoxFit.cover)
-          : SizedBox(width: 25, height: 25),
-          title: Text(trackName, style: TextStyle(color: Colors.white)),
-          subtitle: Text(artists, style: TextStyle(color: Colors.white)),
-        ),
-          );
-        }).toList(),]
-                    ),
+                    Column(children: [
+                      ...widget.spotifyUserData.favoriteTracks
+                          .take(5)
+                          .map((item) {
+                        // Each item is expected to have a 'track' key.
+                        var track = item['track'];
+                        String trackName = track['name'] ?? 'Unknown';
+                        String artists = "";
+                        if (track['artists'] != null) {
+                          artists = (track['artists'] as List)
+                              .map((artist) => artist['name'])
+                              .join(", ");
+                        }
+                        String albumImageUrl = "";
+                        if (track['album'] != null &&
+                            track['album']['images'] != null &&
+                            track['album']['images'] is List &&
+                            track['album']['images'].isNotEmpty) {
+                          albumImageUrl =
+                              track['album']['images'][0]['url'] ?? "";
+                        }
+                        return Material(
+                          color: Color(0xFF5C469C),
+                          child: ListTile(
+                            leading: albumImageUrl.isNotEmpty
+                                ? Image.network(albumImageUrl,
+                                    width: 25, height: 25, fit: BoxFit.cover)
+                                : SizedBox(width: 25, height: 25),
+                            title: Text(trackName,
+                                style: TextStyle(color: Colors.white)),
+                            subtitle: Text(artists,
+                                style: TextStyle(color: Colors.white)),
+                          ),
+                        );
+                      }).toList(),
+                    ]),
                   ],
                 ),
               ),

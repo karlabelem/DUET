@@ -12,7 +12,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
-
 void main() async {
   // Set up the SettingsController, which will glue user settings to multiple
   // Flutter Widgets.
@@ -30,22 +29,23 @@ void main() async {
   );
 
   if (kDebugMode) {
-   try {
-     FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
-     await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
-   } catch (e) {
-     // ignore: avoid_print
-     print(e);
-   }
- }
+    try {
+      FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+      await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+    } catch (e) {
+      // ignore: avoid_print
+      print(e);
+    }
+  }
 
+  makeFirestoreInstance(instance: FirebaseFirestore.instance);
+  makeAuthenticationInstance(instance: FirebaseAuth.instance);
 
- makeFirestoreInstance(instance: FirebaseFirestore.instance);
- makeAuthenticationInstance(instance: FirebaseAuth.instance);
- 
-    runApp(MyApp(settingsController: settingsController,));
+  runApp(MyApp(
+    settingsController: settingsController,
+  ));
 
-    // runApp(MaterialApp(
-    //   home: SpotifyAuthWidget(uuid: 'uuid')
-    // ));
+  // runApp(MaterialApp(
+  //   home: SpotifyAuthWidget(uuid: 'uuid')
+  // ));
 }

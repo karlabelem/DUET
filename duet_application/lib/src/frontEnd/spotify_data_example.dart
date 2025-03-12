@@ -28,7 +28,8 @@ class _SpotifyAuthWidgetState extends State<SpotifyAuthWidget> {
       _errorMessage = null;
     });
     try {
-      _spotifyUserData = await SpotifyUserData.createSpotifyProfile(widget.uuid);
+      _spotifyUserData =
+          await SpotifyUserData.createSpotifyProfile(widget.uuid);
       // After creating the profile, update user data (fetch top artists & saved tracks).
       await _spotifyUserData!.updateSpotifyData();
       setState(() {});
@@ -154,7 +155,7 @@ class _SpotifyAuthWidgetState extends State<SpotifyAuthWidget> {
     if (_isLoading) {
       return Center(child: CircularProgressIndicator());
     }
-    
+
     // If user data is found, display profile details and fetched Spotify data.
     if (_spotifyUserData != null) {
       return SingleChildScrollView(
@@ -179,7 +180,7 @@ class _SpotifyAuthWidgetState extends State<SpotifyAuthWidget> {
         ),
       );
     }
-    
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

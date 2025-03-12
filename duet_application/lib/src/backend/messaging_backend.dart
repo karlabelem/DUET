@@ -17,7 +17,11 @@ class Messagingbackend {
   late String nameCid;
 
   /// Constructor that initializes the Messagingbackend with the given UUIDs and optional conversation and nameCid.
-  Messagingbackend({required this.uuid1, required this.uuid2, List<Message>? conversation, String? nameCid})
+  Messagingbackend(
+      {required this.uuid1,
+      required this.uuid2,
+      List<Message>? conversation,
+      String? nameCid})
       : conversation = conversation ?? [],
         cid = makeCid(uuid1, uuid2),
         nameCid = nameCid ?? "";
@@ -106,7 +110,9 @@ Future<String> makeNameCid(String user1, String user2) async {
 /// Gets a conversation between two users from Firestore.
 Future<Messagingbackend?> getConversation(String user1, String user2) async {
   try {
-    var convRef = firestoreInstance!.instance.collection('messages').doc(makeCid(user1, user2));
+    var convRef = firestoreInstance!.instance
+        .collection('messages')
+        .doc(makeCid(user1, user2));
     var convSnapshot = await convRef.get();
     if (convSnapshot.exists) {
       print("Found conversation with ID: ${user1}_$user2");

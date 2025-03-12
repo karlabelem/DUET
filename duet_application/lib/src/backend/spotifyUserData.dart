@@ -30,7 +30,6 @@ enum MusicGenre {
   Ska
 }
 
-
 class SpotifyUserData {
   final String uuid;
   String username;
@@ -58,7 +57,8 @@ class SpotifyUserData {
   static final String _clientId = dotenv.env['CLIENT_ID']!;
   // In your web app you MUST not expose a client secret.
   static final String _redirectUri = dotenv.env['REDIRECT_URI']!;
-  static final String _spotifyAuthUrl = 'https://accounts.spotify.com/authorize';
+  static final String _spotifyAuthUrl =
+      'https://accounts.spotify.com/authorize';
   static final String _spotifyApiUrl = 'https://api.spotify.com/v1';
 
   /// Creates a new Spotify profile by performing authentication and saving the user profile.
@@ -132,7 +132,8 @@ class SpotifyUserData {
   Future<List<dynamic>> fetchArtists({int limit = 20}) async {
     final response =
         await _spotifyRequest('$_spotifyApiUrl/me/top/artists?limit=$limit');
-    favoriteArtists = response['items'] != null ? List<dynamic>.from(response['items']) : [];
+    favoriteArtists =
+        response['items'] != null ? List<dynamic>.from(response['items']) : [];
     return favoriteArtists ?? [];
   }
 
@@ -140,7 +141,8 @@ class SpotifyUserData {
   Future<List<dynamic>> fetchLibrary({int limit = 20}) async {
     final response =
         await _spotifyRequest('$_spotifyApiUrl/me/tracks?limit=$limit');
-    favoriteTracks = response['items'] != null ? List<dynamic>.from(response['items']) : [];
+    favoriteTracks =
+        response['items'] != null ? List<dynamic>.from(response['items']) : [];
     return favoriteTracks;
   }
 
@@ -202,4 +204,3 @@ class SpotifyUserData {
     return SpotifyUserData.fromMap(doc.data()!);
   }
 }
-

@@ -14,7 +14,10 @@ class DmListBackend {
   List<Map<String, String>> names;
 
   /// Constructor that initializes the DmListBackend with the given UUID and optional lists of conversations and names.
-  DmListBackend({required this.uuid1, List<String>? conversations, List<Map<String, String>>? names})
+  DmListBackend(
+      {required this.uuid1,
+      List<String>? conversations,
+      List<Map<String, String>>? names})
       : conversations = conversations ?? [],
         names = names ?? [];
 
@@ -56,17 +59,21 @@ class DmListBackend {
     List<String> documentNames = [];
     List<Map<String, String>> userNames = [];
     try {
-      final QuerySnapshot querySnapshot = await firestoreInstance!.instance
-          .collection('messages')
-          .get();
+      final QuerySnapshot querySnapshot =
+          await firestoreInstance!.instance.collection('messages').get();
       for (var doc in querySnapshot.docs) {
         if (doc.id.contains(uuid)) {
           documentNames.add(doc.id);
           List<String> profiles = doc.id.split("_");
-          UserProfileData? profile1 = await UserProfileData.getUserProfile(profiles[0]);
-          UserProfileData? profile2 = await UserProfileData.getUserProfile(profiles[1]);
+          UserProfileData? profile1 =
+              await UserProfileData.getUserProfile(profiles[0]);
+          UserProfileData? profile2 =
+              await UserProfileData.getUserProfile(profiles[1]);
           if (profile1 != null && profile2 != null) {
-            userNames.add({profile1.authId: profile1.name, profile2.authId: profile2.name});
+            userNames.add({
+              profile1.authId: profile1.name,
+              profile2.authId: profile2.name
+            });
           }
         }
       }
@@ -114,4 +121,3 @@ Future<DmListBackend?> getConversation(String uuid1) async {
     return null;
   }
 }
-

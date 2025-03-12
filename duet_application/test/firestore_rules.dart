@@ -15,8 +15,7 @@ void main() {
   group("Check connections to users collection with authentication", () {
     // set up the mock cloud firestore
     final auth = MockFirebaseAuth();
-    final firestore = FakeFirebaseFirestore(
-      securityRules: '''
+    final firestore = FakeFirebaseFirestore(securityRules: '''
     service cloud.firestore {
       match /databases/{database}/documents {
         match /users/{userId} {
@@ -28,16 +27,14 @@ void main() {
         }
       }
     }
-      ''',
-      authObject: auth.authForFakeFirestore
-    );
+      ''', authObject: auth.authForFakeFirestore);
     makeFirestoreInstance(instance: firestore);
     makeAuthenticationInstance(instance: auth);
 
     test('Saving new profile to database', () async {
-            // Create users in Firestore
+      // Create users in Firestore
       UserProfileData user1 = UserProfileData(
-                name: 'User 1',
+        name: 'User 1',
         email: 'email@yes.com',
         dob: '01/01/2001',
         location: 'USA',
@@ -45,7 +42,8 @@ void main() {
       );
       await user1.saveToFirestore(); // Save user1 to Firestore
 
-      final UserProfileData? savedUser = await UserProfileData.getUserProfile(user1.authId);
+      final UserProfileData? savedUser =
+          await UserProfileData.getUserProfile(user1.authId);
 
       expect(savedUser, isNotNull);
       expect(savedUser!.uuid, user1.uuid);
@@ -60,7 +58,9 @@ void main() {
     test('Logging in with existing profile', () async {
       const String email = 'email@yes.com';
       const String password = 'password';
-      final UserProfileData? login = await UserProfileData.getUserProfileByEmailAndPassword(email, password);
+      final UserProfileData? login =
+          await UserProfileData.getUserProfileByEmailAndPassword(
+              email, password);
 
       expect(login, isNotNull);
       expect(login!.email, email);
@@ -95,17 +95,22 @@ void main() {
 
       expect(result, 0);
 
-      final Messagingbackend? savedConversation = await getConversation(user1.authId, user2.authId);
+      final Messagingbackend? savedConversation =
+          await getConversation(user1.authId, user2.authId);
       expect(savedConversation, isNotNull);
       expect(savedConversation!.uuid1, user1.authId);
       expect(savedConversation.uuid2, user2.authId);
     });
 
     test('Sending a message', () async {
-      final UserProfileData? user1 = await UserProfileData.getUserProfileByEmailAndPassword('user1@example.com', 'password1');
-      final UserProfileData? user2 = await UserProfileData.getUserProfileByEmailAndPassword('user2@example.com', 'password2');
-      final Messagingbackend? savedConversation = await getConversation(user1!.authId, user2!.authId);
-      
+      final UserProfileData? user1 =
+          await UserProfileData.getUserProfileByEmailAndPassword(
+              'user1@example.com', 'password1');
+      final UserProfileData? user2 =
+          await UserProfileData.getUserProfileByEmailAndPassword(
+              'user2@example.com', 'password2');
+      final Messagingbackend? savedConversation =
+          await getConversation(user1!.authId, user2!.authId);
 
       // Send a message
       Message message = Message(
@@ -117,7 +122,8 @@ void main() {
 
       expect(result, 0);
 
-      final Messagingbackend? updatedConversation = await getConversation(user1.authId, user2.authId);
+      final Messagingbackend? updatedConversation =
+          await getConversation(user1.authId, user2.authId);
 
       expect(updatedConversation, isNotNull);
       expect(updatedConversation!.conversation.length, 1);
@@ -125,4 +131,3 @@ void main() {
     });
   });
 }
-

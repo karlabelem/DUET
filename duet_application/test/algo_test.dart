@@ -11,7 +11,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:duet_application/src/backend/userProfile.dart';
 // import 'package:duet_application/src/backend/spotifyUserData.dart';
 
-
 void main() {
   test('Find best matches using Firestore mock', () async {
     expect(true, true);
@@ -90,7 +89,5 @@ void main() {
     // // Expect the matches to be user3, then user2
     // expect(matches[0].uuid, equals('3'));
     // expect(matches[1].uuid, equals('2'));
-
-
   });
 }

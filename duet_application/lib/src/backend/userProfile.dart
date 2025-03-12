@@ -51,9 +51,9 @@ class UserProfileData {
   })  : _uuid = uuid ?? _uuidGen.v4(),
         likedUsers = likedUsers ?? [],
         _authId = authId ?? '',
-        dislikedUsers = dislikedUsers ?? [], 
-        _passwordHash = _hashPassword(password); // Assign password inside constructor body
-  
+        dislikedUsers = dislikedUsers ?? [],
+        _passwordHash =
+            _hashPassword(password); // Assign password inside constructor body
 
   // Convert to Firestore format
   Map<String, dynamic> toMap() {
@@ -76,22 +76,24 @@ class UserProfileData {
   // Create an instance from Firestore data
   factory UserProfileData.fromMap(Map<String, dynamic> data) {
     return UserProfileData(
-      uuid: data['uuid'] ?? '',
-      name: data['name'] ?? '',
-      email: data['email'] ?? '',
-      dob: data['dob'] ?? '',
-      password: '', // password: data['password'] ?? '',
-      location: data['location'] ?? '',
-      imageUrl: data['imageUrl'] ?? '',
-      bio: data['bio'] ?? '',
-      authId: data['authid'] ?? '',
-      likedUsers: List<String>.from(data['likedUsers'] ?? []),
-      dislikedUsers: List<String>.from(data['dislikedUsers'] ?? []),
-      spotifyData: data['spotifyData'] is Map<String, dynamic> ? SpotifyUserData.fromMap(data['spotifyData']) : null
-    ).._passwordHash = data['passwordHash']; // 🔒 Assign password hash
+        uuid: data['uuid'] ?? '',
+        name: data['name'] ?? '',
+        email: data['email'] ?? '',
+        dob: data['dob'] ?? '',
+        password: '', // password: data['password'] ?? '',
+        location: data['location'] ?? '',
+        imageUrl: data['imageUrl'] ?? '',
+        bio: data['bio'] ?? '',
+        authId: data['authid'] ?? '',
+        likedUsers: List<String>.from(data['likedUsers'] ?? []),
+        dislikedUsers: List<String>.from(data['dislikedUsers'] ?? []),
+        spotifyData: data['spotifyData'] is Map<String, dynamic>
+            ? SpotifyUserData.fromMap(data['spotifyData'])
+            : null)
+      .._passwordHash = data['passwordHash']; // 🔒 Assign password hash
   }
 
-   // Hash password using SHA-256
+  // Hash password using SHA-256
   static String _hashPassword(String password) {
     return sha256.convert(utf8.encode(password)).toString();
   }
@@ -107,14 +109,16 @@ class UserProfileData {
 
   // Save user profile data to Firestore
   Future<void> saveToFirestore() async {
-    try{      
-      await authenticationInstance!.instance.createUserWithEmailAndPassword(email: email, password: _passwordHash);
-      await authenticationInstance!.instance.signInWithEmailAndPassword(email: email, password: _passwordHash);
+    try {
+      await authenticationInstance!.instance.createUserWithEmailAndPassword(
+          email: email, password: _passwordHash);
+      await authenticationInstance!.instance
+          .signInWithEmailAndPassword(email: email, password: _passwordHash);
       _authId = authenticationInstance!.instance.currentUser!.uid;
       await firestoreInstance!.instance
-        .collection('users')
-        .doc(authId)
-        .set(toMap()); // creates users collection in Firestore
+          .collection('users')
+          .doc(authId)
+          .set(toMap()); // creates users collection in Firestore
     } catch (e) {
       // ignore: avoid_print
       print(e);
@@ -124,7 +128,10 @@ class UserProfileData {
   // Method to link Spotify profile
   Future<void> linkSpotifyProfile() async {
     spotifyData = await SpotifyUserData.createSpotifyProfile(uuid);
-    await firestoreInstance!.instance.collection('users').doc(authId).update({'spotifyData': spotifyData!.toMap()});
+    await firestoreInstance!.instance
+        .collection('users')
+        .doc(authId)
+        .update({'spotifyData': spotifyData!.toMap()});
   }
 
   // Fetch or update Spotify data
@@ -134,7 +141,10 @@ class UserProfileData {
     } else {
       await linkSpotifyProfile();
     }
-    await firestoreInstance!.instance.collection('users').doc(authId).update({'spotifyData': spotifyData!.toMap()});
+    await firestoreInstance!.instance
+        .collection('users')
+        .doc(authId)
+        .update({'spotifyData': spotifyData!.toMap()});
   }
 
   // Method to get Spotify User Data
@@ -206,7 +216,8 @@ class UserProfileData {
   // For UI
   Future<int> updateBio(String newBio) async {
     try {
-      final userRef = firestoreInstance!.instance.collection('users').doc(authId);
+      final userRef =
+          firestoreInstance!.instance.collection('users').doc(authId);
 
       // Update the bio directly in Firestore without a transaction
       await userRef.update({
@@ -222,9 +233,11 @@ class UserProfileData {
 
   // Method to update profile details (name, dob, location)
   // For UI
-  Future<int> updateProfile(String newName, String newEmail, String newDob, String newLocation) async {
+  Future<int> updateProfile(String newName, String newEmail, String newDob,
+      String newLocation) async {
     try {
-      final userRef = firestoreInstance!.instance.collection('users').doc(authId);
+      final userRef =
+          firestoreInstance!.instance.collection('users').doc(authId);
 
       // Update profile details directly in Firestore without a transaction
       await userRef.update({
@@ -259,20 +272,20 @@ class UserProfileData {
   }
 
   // Method to get user profile based on email and password
-static Future<UserProfileData?> getUserProfileByEmailAndPassword(String email, String password) async {
-  String hashedPassword = _hashPassword(password);
-  authenticationInstance!.instance.signInWithEmailAndPassword(email: email, password: hashedPassword);
-  final userQuery = await firestoreInstance!.instance
-      .collection('users')
-      .where('email', isEqualTo: email)
-      .where('passwordHash', isEqualTo: hashedPassword)
-      .limit(1)
-      .get();
-  if (userQuery.docs.isNotEmpty) {
-    return UserProfileData.fromMap(userQuery.docs.first.data());
+  static Future<UserProfileData?> getUserProfileByEmailAndPassword(
+      String email, String password) async {
+    String hashedPassword = _hashPassword(password);
+    authenticationInstance!.instance
+        .signInWithEmailAndPassword(email: email, password: hashedPassword);
+    final userQuery = await firestoreInstance!.instance
+        .collection('users')
+        .where('email', isEqualTo: email)
+        .where('passwordHash', isEqualTo: hashedPassword)
+        .limit(1)
+        .get();
+    if (userQuery.docs.isNotEmpty) {
+      return UserProfileData.fromMap(userQuery.docs.first.data());
+    }
+    return null;
   }
-  return null;
 }
-}
-
-

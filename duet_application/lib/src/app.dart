@@ -143,8 +143,7 @@ class _MyAppState extends State<MyApp> {
                               : 2,
                       children: [
                         UserProfileScreen(
-                            user: loggedInUser!,
-                            logOut: openLoginScreen),
+                            user: loggedInUser!, logOut: openLoginScreen),
                         MessagingPage(
                           loggedInUser: loggedInUser!,
                         ),

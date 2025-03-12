@@ -47,73 +47,71 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF5C469C),
-        title: const Text(
-          "Profile",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF5C469C),
+          title: const Text(
+            "Profile",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+            ),
           ),
-        ),
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text("Log Out"),
-                  content: const Text("Are you sure you want to log out?"),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text("Cancel"),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        widget.logOut();
-                      },
-                      child: const Text("Log Out"),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-      body: Container(
-              color: const Color(0xFFE6E6FA),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildProfileHeader(widget.user),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const SizedBox(height: 20),
-                          _buildAboutMeSection(widget.user),
-                          const SizedBox(height: 20),
-                          _buildMusicSection(),
-                          const SizedBox(height: 20),
-                          _buildDetailsSection(widget.user),
-                          const SizedBox(height: 30),
-                        ],
+          elevation: 0,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text("Log Out"),
+                    content: const Text("Are you sure you want to log out?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text("Cancel"),
                       ),
-                    ),
-                  ],
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          widget.logOut();
+                        },
+                        child: const Text("Log Out"),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+        body: Container(
+          color: const Color(0xFFE6E6FA),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildProfileHeader(widget.user),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(height: 20),
+                      _buildAboutMeSection(widget.user),
+                      const SizedBox(height: 20),
+                      _buildMusicSection(),
+                      const SizedBox(height: 20),
+                      _buildDetailsSection(widget.user),
+                      const SizedBox(height: 30),
+                    ],
+                  ),
                 ),
-              ),
-            )
-    );
-          }
-        
+              ],
+            ),
+          ),
+        ));
+  }
 
   Widget _buildProfileHeader(UserProfileData userProfile) {
     return Container(
@@ -293,152 +291,163 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   Widget _buildMusicSection() {
     if (connectingToSpotify) {
-          return const Center(
-            child: CircularProgressIndicator(
-              color: Color(0xFF5C469C),
-            ),
-          );
-        } else if (widget.user.spotifyData == null) {
-          return Card(
-            color: Colors.white,
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
+      return const Center(
+        child: CircularProgressIndicator(
+          color: Color(0xFF5C469C),
+        ),
+      );
+    } else if (widget.user.spotifyData == null) {
+      return Card(
+          color: Colors.white,
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                      Icons.music_note,
-                      color: Color(0xFF5C469C),
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                      "My Music Taste",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF5C469C),
-                      ),
-                      ),
-                      const SizedBox(width: 16,),
-                      ElevatedButton(
-                      onPressed: () {
-                        _connectToSpotify();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: const Color(0xFF5C469C),
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.music_note,
+                          color: Color(0xFF5C469C),
                         ),
-                      ),
-                      child: Text('Connect to Spotify'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                          "Connect your Spotify to show your music taste!",
+                        SizedBox(width: 8),
+                        Text(
+                          "My Music Taste",
                           style: TextStyle(
-                            fontStyle: FontStyle.italic,
-                            color: Colors.grey,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF5C469C),
                           ),
                         ),
-              ])));
-        } else {
-          return Card(
-            color: Colors.white,
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                      Icons.music_note,
-                      color: Color(0xFF5C469C),
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                      "My Music Taste",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF5C469C),
-                      ),
-                      ),
-                      const SizedBox(width: 16),
-                      ElevatedButton(
-                      onPressed: () {
-                        _updateSpotify();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: const Color(0xFF5C469C),
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        const SizedBox(
+                          width: 16,
                         ),
+                        ElevatedButton(
+                          onPressed: () {
+                            _connectToSpotify();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: const Color(0xFF5C469C),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          child: Text('Connect to Spotify'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      "Connect your Spotify to show your music taste!",
+                      style: TextStyle(
+                        fontStyle: FontStyle.italic,
+                        color: Colors.grey,
                       ),
-                      child: Text('Refresh Spotify Info'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Saved Tracks",
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
-        ),
-        ...widget.user.spotifyData!.favoriteTracks.take(10).map((item) {
-          // Each item is expected to have a 'track' key.
-          var track = item['track'];
-          String trackName = track['name'] ?? 'Unknown';
-          String artists = "";
-          if (track['artists'] != null) {
-        artists = (track['artists'] as List)
-            .map((artist) => artist['name'])
-            .join(", ");
-          }
-          String albumImageUrl = "";
-          if (track['album'] != null &&
-          track['album']['images'] != null &&
-          track['album']['images'] is List &&
-          track['album']['images'].isNotEmpty) {
-        albumImageUrl = track['album']['images'][0]['url'] ?? "";
-          }
-          return Material(
+                    ),
+                  ])));
+    } else {
+      return Card(
         color: Colors.white,
-        child: ListTile(
-          leading: albumImageUrl.isNotEmpty
-          ? Image.network(albumImageUrl,
-              width: 50, height: 50, fit: BoxFit.cover)
-          : SizedBox(width: 50, height: 50),
-          title: Text(trackName, style: TextStyle(color: Colors.black)),
-          subtitle: Text(artists, style: TextStyle(color: Colors.black)),
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
         ),
-          );
-        }).toList(),
-      ],
-    ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.music_note,
+                    color: Color(0xFF5C469C),
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    "My Music Taste",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF5C469C),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      _updateSpotify();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: const Color(0xFF5C469C),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: Text('Refresh Spotify Info'),
+                  ),
                 ],
               ),
-            ),
-          );
-        }
+              const SizedBox(height: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Saved Tracks",
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
+                  ),
+                  ...widget.user.spotifyData!.favoriteTracks
+                      .take(10)
+                      .map((item) {
+                    // Each item is expected to have a 'track' key.
+                    var track = item['track'];
+                    String trackName = track['name'] ?? 'Unknown';
+                    String artists = "";
+                    if (track['artists'] != null) {
+                      artists = (track['artists'] as List)
+                          .map((artist) => artist['name'])
+                          .join(", ");
+                    }
+                    String albumImageUrl = "";
+                    if (track['album'] != null &&
+                        track['album']['images'] != null &&
+                        track['album']['images'] is List &&
+                        track['album']['images'].isNotEmpty) {
+                      albumImageUrl = track['album']['images'][0]['url'] ?? "";
+                    }
+                    return Material(
+                      color: Colors.white,
+                      child: ListTile(
+                        leading: albumImageUrl.isNotEmpty
+                            ? Image.network(albumImageUrl,
+                                width: 50, height: 50, fit: BoxFit.cover)
+                            : SizedBox(width: 50, height: 50),
+                        title: Text(trackName,
+                            style: TextStyle(color: Colors.black)),
+                        subtitle: Text(artists,
+                            style: TextStyle(color: Colors.black)),
+                      ),
+                    );
+                  }).toList(),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildDetailsSection(UserProfileData userProfile) {

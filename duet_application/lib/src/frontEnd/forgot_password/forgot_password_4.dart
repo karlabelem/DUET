@@ -8,7 +8,7 @@ class FPStep4 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-    child: Center(
+        child: Center(
       child: SizedBox(
         width: 512,
         height: 512,
@@ -22,33 +22,29 @@ class FPStep4 extends StatelessWidget {
                     TextSpan(
                       text: 'Password changed\n',
                       style: TextStyle(
-                        color: Color(0xFF333333),
-                        fontSize: 24,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w600,
-                        decoration: TextDecoration.none
-                      ),
+                          color: Color(0xFF333333),
+                          fontSize: 24,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w600,
+                          decoration: TextDecoration.none),
                     ),
                     TextSpan(
                       text: '\n',
                       style: TextStyle(
-                        color: Color(0xFF333333),
-                        fontSize: 24,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w500,
-                        decoration: TextDecoration.none
-                      ),
+                          color: Color(0xFF333333),
+                          fontSize: 24,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                          decoration: TextDecoration.none),
                     ),
                     TextSpan(
-                      text:
-                          'Your password has been changed successfully',
+                      text: 'Your password has been changed successfully',
                       style: TextStyle(
-                        color: Color(0xFF333333),
-                        fontSize: 15,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w500,
-                        decoration: TextDecoration.none
-                      ),
+                          color: Color(0xFF333333),
+                          fontSize: 15,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                          decoration: TextDecoration.none),
                     ),
                   ],
                 ),
@@ -57,18 +53,13 @@ class FPStep4 extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
-                nextStep();
-              },
-              style: ButtonStyle(
-                backgroundColor: WidgetStatePropertyAll<Color>(Color(0xFF5C469C))
-              ),
-              child: Center(
-                child: Text(
-                  "Back to log in"
-                )
-              )
-            )
+                onPressed: () {
+                  nextStep();
+                },
+                style: ButtonStyle(
+                    backgroundColor:
+                        WidgetStatePropertyAll<Color>(Color(0xFF5C469C))),
+                child: Center(child: Text("Back to log in")))
           ],
         ),
       ),

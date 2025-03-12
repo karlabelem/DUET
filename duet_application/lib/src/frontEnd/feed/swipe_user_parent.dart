@@ -115,18 +115,18 @@ class _SwipeUserParentState extends State<SwipeUserParent> {
             color: const Color(0xFFE6E6FA), // Lilac background
             padding: const EdgeInsets.all(16.0),
             child: Center(
-              child:  SwipeUserScreen(
-                  userProfile: potentialMatches[currentIndex],
-                  spotifyUserData: snapshot.data ??
-                      SpotifyUserData(
-                        uuid: potentialMatches[currentIndex].uuid,
-                        email: potentialMatches[currentIndex].email,
-                        favoriteGenres: {},
-                      ),
-                  swipeAction: handleSwipe,
-                ),
+              child: SwipeUserScreen(
+                userProfile: potentialMatches[currentIndex],
+                spotifyUserData: snapshot.data ??
+                    SpotifyUserData(
+                      uuid: potentialMatches[currentIndex].uuid,
+                      email: potentialMatches[currentIndex].email,
+                      favoriteGenres: {},
+                    ),
+                swipeAction: handleSwipe,
               ),
-            );
+            ),
+          );
         },
       ),
     );

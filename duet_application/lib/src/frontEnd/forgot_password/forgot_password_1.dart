@@ -9,7 +9,7 @@ class FPStep1 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-    child: Center(
+        child: Center(
       child: SizedBox(
         width: 512,
         height: 512,
@@ -23,33 +23,30 @@ class FPStep1 extends StatelessWidget {
                     TextSpan(
                       text: 'Forgot password?\n',
                       style: TextStyle(
-                        color: Color(0xFF333333),
-                        fontSize: 24,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w600,
-                        decoration: TextDecoration.none
-                      ),
+                          color: Color(0xFF333333),
+                          fontSize: 24,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w600,
+                          decoration: TextDecoration.none),
                     ),
                     TextSpan(
                       text: '\n',
                       style: TextStyle(
-                        color: Color(0xFF333333),
-                        fontSize: 24,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w500,
-                        decoration: TextDecoration.none
-                      ),
+                          color: Color(0xFF333333),
+                          fontSize: 24,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                          decoration: TextDecoration.none),
                     ),
                     TextSpan(
                       text:
                           'Don’t worry! It happens. Please enter the email associated with your account.',
                       style: TextStyle(
-                        color: Color(0xFF333333),
-                        fontSize: 15,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w500,
-                        decoration: TextDecoration.none
-                      ),
+                          color: Color(0xFF333333),
+                          fontSize: 15,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                          decoration: TextDecoration.none),
                     ),
                   ],
                 ),
@@ -62,18 +59,13 @@ class FPStep1 extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
-                nextStep();
-              },
-              style: ButtonStyle(
-                backgroundColor: WidgetStatePropertyAll<Color>(Color(0xFF5C469C))
-              ),
-              child: Center(
-                child: Text(
-                  "Send code"
-                )
-              )
-            )
+                onPressed: () {
+                  nextStep();
+                },
+                style: ButtonStyle(
+                    backgroundColor:
+                        WidgetStatePropertyAll<Color>(Color(0xFF5C469C))),
+                child: Center(child: Text("Send code")))
           ],
         ),
       ),
